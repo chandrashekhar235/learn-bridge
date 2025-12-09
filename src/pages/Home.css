@@ -1,0 +1,46 @@
+* {
+    box-sizing: border-box;
+    font-family: poppins;
+}
+@keyframes floatLeftRight {
+  0%, 200% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+}
+
+@keyframes floatRightLeft {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-40px);
+  }
+}
+
+.float-left-right {
+  animation: floatLeftRight 5s ease-in-out infinite;
+}
+
+.float-left-right:hover {
+  animation-play-state: paused;
+}
+
+.float-right-left {
+  animation: floatRightLeft 3s ease-in-out infinite;
+}
+
+.float-right-left:hover {
+  animation-play-state: paused;
+}
+
+/* Optional: Add animation delay for staggered effect */
+.float-left-right:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.float-right-left:nth-child(1) {
+  animation-delay: 0.1s;
+}
