@@ -1,6 +1,7 @@
 * {
     box-sizing: border-box;
     font-family: poppins;
+  
 }
 @keyframes floatLeftRight {
   0%, 200% {
@@ -21,7 +22,7 @@
 }
 
 .float-left-right {
-  animation: floatLeftRight 5s ease-in-out infinite;
+  animation: floatLeftRight 3s ease-in-out infinite;
 }
 
 .float-left-right:hover {

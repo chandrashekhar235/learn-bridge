@@ -1,0 +1,8 @@
+.hero-bg {
+  background:
+    radial-gradient(circle at center, rgba(120, 120, 255, 0.18), transparent 60%),
+    url("https://www.transparenttextures.com/patterns/dark-matter.png"),
+    black;
+  background-size: cover;
+  background-position: center;
+}
