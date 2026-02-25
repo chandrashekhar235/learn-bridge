@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:7777";
+import BASE_URL from "../config";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const CreateBlog = () => {
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ const CreateBlog = () => {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
-    console.log("TOKEN:", token);
 
     if (!token) {
       alert("You must be logged in to publish");
@@ -31,58 +31,64 @@ const CreateBlog = () => {
     }
 
     try {
-      await axios.post(
-        `${API}/blogs`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`${BASE_URL}/blogs`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       navigate("/blogs");
     } catch (error) {
       console.log("ERROR:", error.response?.data || error.message);
+      alert("Error publishing blog");
     }
   };
 
   return (
-   <div className="min-h-screen flex flex-col items-center pt-10">
-  <h1 className=" mt-10 mb-6 text-white text-3xl font-semibold text-center">
-    Share your Thought
-  </h1>
-    
-    <div className="w-full max-w-4xl space-y-4 mt-10">
-      <form onSubmit={handleSubmit} className=" text-black">
-        <input
-          type="text"
-          name="title"
-          placeholder="Blog Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          className="text-white border p-2 mb-10 font-semibold text-2xl w-full"
-        />
+    <div className="min-h-screen bg-gradient-to-br from-[#050b1e] via-[#0a1230] to-[#0b1b3f] text-white">
 
-        <textarea
-          name="description"
-          placeholder="Write your blog..."
-          value={formData.description}
-          onChange={handleChange}
-          required
-          rows="4"
-          className="w-full h-72 p-4 rounded text-white "
-        />
+      <Navbar />
 
-        <button
-          type="submit"
-          className="text-white  mt-10 mb-10 w-full"
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-16">
+
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-10">
+          Share Your Thought ✍️
+        </h1>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 bg-white/5 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/10 shadow-lg"
         >
-          Publish
-        </button>
-      </form>
-    </div>
+          <input
+            type="text"
+            name="title"
+            placeholder="Blog Title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg bg-transparent border border-white/20 text-white text-lg sm:text-xl focus:outline-none focus:border-blue-500"
+          />
+
+          <textarea
+            name="description"
+            placeholder="Write your blog..."
+            value={formData.description}
+            onChange={handleChange}
+            required
+            rows="8"
+            className="w-full p-4 rounded-lg bg-transparent border border-white/20 text-white focus:outline-none focus:border-blue-500"
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 transition duration-200 py-3 rounded-lg font-semibold"
+          >
+            Publish
+          </button>
+        </form>
+      </div>
+
+      <Footer />
     </div>
   );
 };
