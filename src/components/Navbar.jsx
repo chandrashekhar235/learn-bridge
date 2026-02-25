@@ -20,140 +20,90 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full px-6 py-3 flex items-center justify-between bg-transparent text-gray-300 relative">
+    <nav className="w-full px-6 py-3 flex items-center justify-between relative text-gray-300">
 
-      {/* LEFT: LOGO */}
-      <Link to="/">
-        <img
-          src="/logo.png"
-          alt="LearnBridge Logo"
-          className="h-12 w-auto"
-        />
-      </Link>
+  {/* LEFT: LOGO */}
+  <div className="flex-1">
+    <Link to="/">
+      <img
+        src="/logo.png"
+        alt="LearnBridge Logo"
+        className="h-12 w-auto"
+      />
+    </Link>
+  </div>
 
-      {/* HAMBURGER (Mobile) */}
-      <button
-        className="md:hidden text-white"
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        ☰
-      </button>
+  {/* CENTER: LINKS */}
+  <div className="hidden md:flex flex-1 justify-center space-x-8">
+    <Link to="/" className="hover:text-white">
+      Home
+    </Link>
+    <Link to="/explore" className="hover:text-white">
+      Explore
+    </Link>
+  </div>
 
-      {/* CENTER + RIGHT (Desktop) */}
-      <div className="hidden md:flex items-center space-x-8">
+  {/* RIGHT SIDE */}
+  <div className="hidden md:flex flex-1 justify-end items-center space-x-6">
+    {!isLoggedIn ? (
+      <>
+        <button
+          onClick={() =>
+            navigate("/signup", { state: { background: location } })
+          }
+          className="hover:text-white"
+        >
+          Signup
+        </button>
 
-        <Link to="/" className="hover:text-white">
-          Home
-        </Link>
+        <button
+          onClick={() =>
+            navigate("/login", { state: { background: location } })
+          }
+          className="hover:text-white"
+        >
+          Login
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          onClick={() => navigate("/profile")}
+          className="flex items-center space-x-2 hover:text-white"
+        >
+          <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center text-xs text-white">
+            {user?.avatar ? (
+              <img
+                src={`${BASE_URL}${user.avatar}`}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              user?.name?.charAt(0)?.toUpperCase()
+            )}
+          </div>
 
-        <Link to="/explore" className="hover:text-white">
-          Explore
-        </Link>
+          <span className="text-red-400">
+            {user?.name || "Profile"}
+          </span>
+        </button>
 
-        {!isLoggedIn ? (
-          <>
-            <button
-              onClick={() =>
-                navigate("/signup", { state: { background: location } })
-              }
-              className="hover:text-white"
-            >
-              Signup
-            </button>
+        <button
+          onClick={logout}
+          className="text-sm text-gray-400 hover:text-red-500"
+        >
+          Logout
+        </button>
+      </>
+    )}
+  </div>
 
-            <button
-              onClick={() =>
-                navigate("/login", { state: { background: location } })
-              }
-              className="hover:text-white"
-            >
-              Login
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => navigate("/profile")}
-              className="flex items-center space-x-2 hover:text-white"
-            >
-              <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center text-xs text-white">
-                {user?.avatar ? (
-                  <img
-                    src={`${BASE_URL}${user.avatar}`}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  user?.name?.charAt(0)?.toUpperCase()
-                )}
-              </div>
+  {/* MOBILE MENU BUTTON */}
+  <div className="md:hidden">
+    <button onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+  </div>
 
-              <span className="text-red-400">
-                {user?.name || "Profile"}
-              </span>
-            </button>
-
-            <button
-              onClick={logout}
-              className="text-sm text-gray-400 hover:text-red-500"
-            >
-              Logout
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* MOBILE DROPDOWN */}
-      {menuOpen && (
-        <div className="absolute top-16 right-6 bg-gray-900 p-4 rounded-lg flex flex-col space-y-4 md:hidden z-50">
-
-          <Link to="/" onClick={() => setMenuOpen(false)}>
-            Home
-          </Link>
-
-          <Link to="/explore" onClick={() => setMenuOpen(false)}>
-            Explore
-          </Link>
-
-          {!isLoggedIn ? (
-            <>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  navigate("/signup", { state: { background: location } });
-                }}
-              >
-                Signup
-              </button>
-
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  navigate("/login", { state: { background: location } });
-                }}
-              >
-                Login
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  navigate("/profile");
-                }}
-              >
-                Profile
-              </button>
-
-              <button onClick={logout} className="text-red-400">
-                Logout
-              </button>
-            </>
-          )}
-        </div>
-      )}
-    </nav>
+</nav>
   );
 };
 
