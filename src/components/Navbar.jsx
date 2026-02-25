@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import BASE_URL from "../config";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
-
   const isLoggedIn = !!token;
 
   const logout = () => {
@@ -19,31 +20,36 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full flex items-center justify-between py-2 px-10">
-      
-      {/* LOGO */}
-      <div className="flex items-center space-x-10">
-        <Link to="/">
-          <img
-            src="/logo.png"
-            alt="LearnBridge Logo"
-            className="h-16 w-auto"
-          />
-        </Link>
-      </div>
+    <nav className="w-full px-6 py-3 flex items-center justify-between bg-transparent text-gray-300 relative">
 
-      {/* CENTER LINKS */}
-      <div className="flex items-center space-x-6 text-gray-300">
+      {/* LEFT: LOGO */}
+      <Link to="/">
+        <img
+          src="/logo.png"
+          alt="LearnBridge Logo"
+          className="h-12 w-auto"
+        />
+      </Link>
+
+      {/* HAMBURGER (Mobile) */}
+      <button
+        className="md:hidden text-white"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        ☰
+      </button>
+
+      {/* CENTER + RIGHT (Desktop) */}
+      <div className="hidden md:flex items-center space-x-8">
+
         <Link to="/" className="hover:text-white">
           Home
         </Link>
+
         <Link to="/explore" className="hover:text-white">
           Explore
         </Link>
-      </div>
 
-      {/* RIGHT SIDE */}
-      <div className="flex items-center space-x-4 text-gray-300">
         {!isLoggedIn ? (
           <>
             <button
@@ -66,20 +72,19 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            {/* Avatar + Name */}
             <button
               onClick={() => navigate("/profile")}
               className="flex items-center space-x-2 hover:text-white"
             >
-              <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs text-white overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center text-xs text-white">
                 {user?.avatar ? (
                   <img
-                    src={user.avatar}
+                    src={`${BASE_URL}${user.avatar}`}
                     alt="avatar"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase()
+                  user?.name?.charAt(0)?.toUpperCase()
                 )}
               </div>
 
@@ -88,7 +93,6 @@ const Navbar = () => {
               </span>
             </button>
 
-            {/* Logout */}
             <button
               onClick={logout}
               className="text-sm text-gray-400 hover:text-red-500"
@@ -98,8 +102,59 @@ const Navbar = () => {
           </>
         )}
       </div>
+
+      {/* MOBILE DROPDOWN */}
+      {menuOpen && (
+        <div className="absolute top-16 right-6 bg-gray-900 p-4 rounded-lg flex flex-col space-y-4 md:hidden z-50">
+
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+            Home
+          </Link>
+
+          <Link to="/explore" onClick={() => setMenuOpen(false)}>
+            Explore
+          </Link>
+
+          {!isLoggedIn ? (
+            <>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/signup", { state: { background: location } });
+                }}
+              >
+                Signup
+              </button>
+
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/login", { state: { background: location } });
+                }}
+              >
+                Login
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/profile");
+                }}
+              >
+                Profile
+              </button>
+
+              <button onClick={logout} className="text-red-400">
+                Logout
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
 
-export default Navbar;
+export default Navbar;  
