@@ -9,7 +9,10 @@ const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL ||
   "https://learn-bridge-backend.onrender.com";
 
-const socket = io(SOCKET_URL);
+const socket = io(SOCKET_URL, {
+  transports: ["websocket"],
+  withCredentials: true,
+});
 
 const StudyRoom = () => {
   const { roomId } = useParams();
