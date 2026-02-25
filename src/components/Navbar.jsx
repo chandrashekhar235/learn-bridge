@@ -22,89 +22,148 @@ const Navbar = () => {
   return (
     <nav className="w-full px-6 py-3 flex items-center justify-between relative text-gray-300">
 
-  {/* LEFT: LOGO */}
-  <div className="flex-1">
-    <Link to="/">
-      <img
-        src="/logo.png"
-        alt="LearnBridge Logo"
-        className="h-12 w-auto"
-      />
-    </Link>
-  </div>
+      {/* LEFT: LOGO */}
+      <div className="flex-1">
+        <Link to="/">
+          <img
+            src="/logo.png"
+            alt="LearnBridge Logo"
+            className="h-12 w-auto"
+          />
+        </Link>
+      </div>
 
-  {/* CENTER: LINKS */}
-  <div className="hidden md:flex flex-1 justify-center space-x-8">
-    <Link to="/" className="hover:text-white">
-      Home
-    </Link>
-    <Link to="/explore" className="hover:text-white">
-      Explore
-    </Link>
-  </div>
+      {/* CENTER LINKS (Desktop Only) */}
+      <div className="hidden md:flex flex-1 justify-center space-x-8">
+        <Link to="/" className="hover:text-white">
+          Home
+        </Link>
+        <Link to="/explore" className="hover:text-white">
+          Explore
+        </Link>
+      </div>
 
-  {/* RIGHT SIDE */}
-  <div className="hidden md:flex flex-1 justify-end items-center space-x-6">
-    {!isLoggedIn ? (
-      <>
+      {/* RIGHT SIDE (Desktop Only) */}
+      <div className="hidden md:flex flex-1 justify-end items-center space-x-6">
+        {!isLoggedIn ? (
+          <>
+            <button
+              onClick={() =>
+                navigate("/signup", { state: { background: location } })
+              }
+              className="hover:text-white"
+            >
+              Signup
+            </button>
+
+            <button
+              onClick={() =>
+                navigate("/login", { state: { background: location } })
+              }
+              className="hover:text-white"
+            >
+              Login
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate("/profile")}
+              className="flex items-center space-x-2 hover:text-white"
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center text-xs text-white">
+                {user?.avatar ? (
+                  <img
+                    src={`${BASE_URL}${user.avatar}`}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.name?.charAt(0)?.toUpperCase()
+                )}
+              </div>
+
+              <span className="text-red-400">
+                {user?.name || "Profile"}
+              </span>
+            </button>
+
+            <button
+              onClick={logout}
+              className="text-sm text-gray-400 hover:text-red-500"
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* MOBILE HAMBURGER */}
+      <div className="md:hidden">
         <button
-          onClick={() =>
-            navigate("/signup", { state: { background: location } })
-          }
-          className="hover:text-white"
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="text-white text-2xl"
         >
-          Signup
+          ☰
         </button>
+      </div>
 
-        <button
-          onClick={() =>
-            navigate("/login", { state: { background: location } })
-          }
-          className="hover:text-white"
-        >
-          Login
-        </button>
-      </>
-    ) : (
-      <>
-        <button
-          onClick={() => navigate("/profile")}
-          className="flex items-center space-x-2 hover:text-white"
-        >
-          <div className="w-8 h-8 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center text-xs text-white">
-            {user?.avatar ? (
-              <img
-                src={`${BASE_URL}${user.avatar}`}
-                alt="avatar"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              user?.name?.charAt(0)?.toUpperCase()
-            )}
-          </div>
+      {/* MOBILE DROPDOWN */}
+      {menuOpen && (
+        <div className="absolute top-16 right-6 bg-gray-900 p-6 rounded-xl shadow-lg flex flex-col space-y-4 md:hidden z-50">
 
-          <span className="text-red-400">
-            {user?.name || "Profile"}
-          </span>
-        </button>
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+            Home
+          </Link>
 
-        <button
-          onClick={logout}
-          className="text-sm text-gray-400 hover:text-red-500"
-        >
-          Logout
-        </button>
-      </>
-    )}
-  </div>
+          <Link to="/explore" onClick={() => setMenuOpen(false)}>
+            Explore
+          </Link>
 
-  {/* MOBILE MENU BUTTON */}
-  <div className="md:hidden">
-    <button onClick={() => setMenuOpen(!menuOpen)}>☰</button>
-  </div>
+          {!isLoggedIn ? (
+            <>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/signup", { state: { background: location } });
+                }}
+              >
+                Signup
+              </button>
 
-</nav>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/login", { state: { background: location } });
+                }}
+              >
+                Login
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/profile");
+                }}
+              >
+                Profile
+              </button>
+
+              <button
+                onClick={logout}
+                className="text-red-400"
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+    </nav>
   );
 };
 
-export default Navbar;  
+export default Navbar;
