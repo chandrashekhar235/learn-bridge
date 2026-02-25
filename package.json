@@ -60,10 +60,16 @@
   "react-router-dom": "^7.9.6",
   
     
+  "simple-peer": "^9.11.1",
+  
+    
   "socket.io-client": "^4.8.3",
   
     
-  "styled-components": "^6.1.19"
+  "styled-components": "^6.1.19",
+  
+    
+  "vite-plugin-node-polyfills": "^0.25.0"
   
   },
   

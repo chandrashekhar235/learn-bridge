@@ -13,7 +13,7 @@ const app = express();
 
 // middleware
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: true,
   credentials: true
 }));
 
@@ -41,10 +41,8 @@ mongoose.connect(process.env.MONGO_URI)
   });
 
 //port
-const PORT = 7777;
-
-console.log("backend connected to port - 7777");
+const PORT = process.env.PORT || 7777;
 
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+  console.log(`Backend running on port ${PORT}`);
 });

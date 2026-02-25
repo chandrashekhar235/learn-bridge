@@ -6,9 +6,7 @@ const Messages = () => {
     <div>
        <Navbar />
        <div className="min-h-screen color-black ">
-        friends 
-        sahil 
-        adja
+        
        </div>
     </div>
   )

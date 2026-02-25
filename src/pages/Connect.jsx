@@ -3,8 +3,8 @@ import Navbar from "../components/Navbar";
 
 export default function Connect() {
   const [users, setUsers] = useState([
-    { id: 1, name: "Aman", status: "none" },
-    { id: 2, name: "Riya", status: "requested" },
+    { id: 1, name: "sahil", status: "none" },
+    { id: 2, name: "chetna", status: "requested" },
     { id: 3, name: "Karan", status: "friends" },
   ]);
 
