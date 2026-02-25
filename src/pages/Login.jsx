@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BASE_URL from "../config";
 
 function Login() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:7777/login", {
+      const res = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -27,10 +28,17 @@ function Login() {
         return;
       }
 
-      localStorage.setItem("token", data.token);
+      // ✅ Save token
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      alert("Login successful 🎉");
 
       navigate("/explore", { replace: true });
+
     } catch (err) {
+      console.error(err);
       alert("Server not reachable");
     } finally {
       setLoading(false);
@@ -44,6 +52,7 @@ function Login() {
 
         <form onSubmit={submitForm} className="space-y-4">
           <input
+            type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -63,7 +72,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 py-2 rounded"
+            className="w-full bg-blue-600 py-2 rounded disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login"}
           </button>

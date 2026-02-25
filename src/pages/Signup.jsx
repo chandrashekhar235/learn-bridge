@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BASE_URL from "../config";
 
 function Signup() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5001/signup", {
+      const res = await fetch(`${BASE_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -28,7 +29,15 @@ function Signup() {
         return;
       }
 
+      // ✅ Save token if backend sends it
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      alert("Account created successfully 🎉");
+
       navigate("/explore", { replace: true });
+
     } catch (err) {
       console.error(err);
       alert("Server not reachable");
@@ -43,7 +52,6 @@ function Signup() {
         className="bg-gray-900 text-white p-8 rounded-xl w-full max-w-md relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
         <button
           onClick={() => navigate(-1)}
           className="absolute top-3 right-3 text-gray-400 hover:text-white"
@@ -65,6 +73,7 @@ function Signup() {
           />
 
           <input
+            type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}

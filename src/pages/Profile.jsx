@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const API = "http://localhost:7777";
+import BASE_URL from "../config";   // ✅ import production URL
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -23,10 +21,9 @@ const Profile = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`${API}/profile`, {
+        const res = await axios.get(`${BASE_URL}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
 
         setUser(res.data);
         setFormData(res.data);
@@ -52,7 +49,7 @@ const Profile = () => {
       };
 
       const response = await axios.put(
-        `${API}/profile`,
+        `${BASE_URL}/profile`,
         updatePayload,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -73,25 +70,21 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      
       <div className="pb-10 w-full max-w-md">
-        
         <h1 className="text-5xl font-bold pb-10 text-center text-white">
           Account Details
         </h1>
-       <div className="text-white">
-  <Link
-    to="/"
-    className="px-4 py-2 bg-blue-500 text-white rounded"
-  >
-    Go Home
-  </Link>
-</div>
+
+        <div className="text-white">
+          <Link to="/" className="px-4 py-2 bg-blue-500 text-white rounded">
+            Go Home
+          </Link>
+        </div>
 
         {user.avatar && (
           <div className="flex justify-center">
             <img
-              src={`${API}${user.avatar}`}
+              src={`${BASE_URL}${user.avatar}`}   // ✅ fixed here also
               alt="profile"
               className="w-60 h-60 rounded-full object-cover"
             />

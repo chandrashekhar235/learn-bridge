@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import Peer from "simple-peer";
 
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  import.meta.env.VITE_SOCKET_URL || BASE_URL;
 
 const socket = io(SOCKET_URL);
 
