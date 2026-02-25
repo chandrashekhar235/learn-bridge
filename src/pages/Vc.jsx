@@ -3,8 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 
+import BASE_URL from "../config";
+
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || BASE_URL;
+  import.meta.env.VITE_SOCKET_URL ||
+  "https://learn-bridge-backend.onrender.com";
 
 const socket = io(SOCKET_URL);
 
