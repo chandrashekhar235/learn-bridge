@@ -10,6 +10,7 @@ const { Server } = require("socket.io");
 const userRoutes = require("./routes/UserRoutes");
 const blogRoutes = require("./routes/BlogRoutes");
 const groupRoutes = require("./routes/GroupRoutes");
+const vcRoutes = require("./routes/VcRoutes");
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.get("/", (req, res) => {
 app.use("/", userRoutes);
 app.use("/", blogRoutes);
 app.use("/", groupRoutes);
+app.use("/vc", vcRoutes);
 
 /* ======================
    DATABASE

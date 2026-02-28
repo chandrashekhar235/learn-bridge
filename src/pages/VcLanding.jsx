@@ -1,55 +1,118 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const BASE_URL = "http://localhost:7777"; // Use local for now
 
 const VcLanding = () => {
   const navigate = useNavigate();
-  const [roomInput, setRoomInput] = useState("");
 
-  const createRoom = () => {
-    const newRoomId = Math.random().toString(36).substring(2, 9);
-    navigate(`/vc/${newRoomId}`);
-  };
+  const [rooms, setRooms] = useState([]);
+  const [roomName, setRoomName] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const joinRoom = () => {
-    if (!roomInput) return;
-    navigate(`/vc/${roomInput}`);
+  // Fetch public rooms
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/vc/public`);
+        setRooms(res.data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  // Create room
+  const createRoom = async () => {
+    console.log("Create clicked");
+
+    if (!roomName.trim()) {
+      alert("Enter a room name");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await axios.post(`${BASE_URL}/vc/create`, {
+        name: roomName,
+        isPrivate,
+      });
+
+      console.log("Created:", res.data);
+
+      navigate(`/vc/${res.data._id}`);
+    } catch (err) {
+      console.error("Create error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient from-black to-gray-900 text-white flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-6">
 
-      <h1 className="text-4xl font-bold mb-10">
-        Voice Chat Rooms
+      <h1 className="text-3xl font-bold text-center mb-10">
+        🎙 Voice Channels
       </h1>
 
-      <div className="bg-gray-800 p-8 rounded-2xl w-full max-w-md space-y-6 shadow-xl">
+      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
 
-        <button
-          onClick={createRoom}
-          className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl"
-        >
-          ➕ Create New Room
-        </button>
+        {/* LEFT SIDE - ROOM LIST */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Public Channels</h2>
 
-        <div className="flex flex-col gap-3">
+          {rooms.length === 0 ? (
+            <p className="text-gray-400">No public voice channels yet.</p>
+          ) : (
+            rooms.map((room) => (
+              <div
+                key={room._id}
+                onClick={() => navigate(`/vc/${room._id}`)}
+                className="bg-gray-800 p-4 rounded-xl mb-3 cursor-pointer hover:bg-gray-700"
+              >
+                <p className="font-medium">{room.name}</p>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* RIGHT SIDE - CREATE ROOM */}
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
+          <h2 className="text-xl font-semibold mb-6">Create New VC</h2>
+
           <input
             type="text"
-            placeholder="Enter Room ID"
-            value={roomInput}
-            onChange={(e) => setRoomInput(e.target.value)}
-            className="px-4 py-2 rounded-lg text-black"
+            placeholder="Enter room name"
+            value={roomName}
+            onChange={(e) => setRoomName(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg text-black mb-4"
           />
 
+          <label className="flex items-center gap-2 mb-6">
+            <input
+              type="checkbox"
+              checked={isPrivate}
+              onChange={() => setIsPrivate(!isPrivate)}
+            />
+            Private Channel
+          </label>
+
           <button
-            onClick={joinRoom}
-            className="bg-blue-600 hover:bg-blue-700 py-2 rounded-xl"
+            type="button"
+            onClick={createRoom}
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-semibold"
           >
-            🔗 Join Room
+            {loading ? "Creating..." : "Create Channel"}
           </button>
         </div>
 
       </div>
-
     </div>
   );
 };
