@@ -3,8 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 
-import BASE_URL from "../config";
-
 const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL ||
   "https://learn-bridge-backend.onrender.com";
@@ -37,6 +35,7 @@ const StudyRoom = () => {
         });
 
         setStream(currentStream);
+
         if (localVideo.current) {
           localVideo.current.srcObject = currentStream;
         }
@@ -61,6 +60,7 @@ const StudyRoom = () => {
           if (peersRef.current[userId]) {
             peersRef.current[userId].destroy();
             delete peersRef.current[userId];
+
             setRemoteStreams((prev) =>
               prev.filter((s) => s.id !== userId)
             );
@@ -74,19 +74,18 @@ const StudyRoom = () => {
 
     init();
 
-    // CLEANUP (Very Important)
     return () => {
       socket.off("user-joined");
       socket.off("signal");
       socket.off("user-left");
 
       Object.values(peersRef.current).forEach((peer) => peer.destroy());
+      peersRef.current = {};
 
       if (currentStream) {
         currentStream.getTracks().forEach((track) => track.stop());
       }
     };
-
   }, [roomId]);
 
   const createPeer = (userId, stream) => {
@@ -101,10 +100,10 @@ const StudyRoom = () => {
     });
 
     peer.on("stream", (userStream) => {
-      setRemoteStreams((prev) => [
-        ...prev,
-        { id: userId, stream: userStream },
-      ]);
+      setRemoteStreams((prev) => {
+        if (prev.find((p) => p.id === userId)) return prev;
+        return [...prev, { id: userId, stream: userStream }];
+      });
     });
 
     return peer;
@@ -124,10 +123,10 @@ const StudyRoom = () => {
     });
 
     peer.on("stream", (userStream) => {
-      setRemoteStreams((prev) => [
-        ...prev,
-        { id: userId, stream: userStream },
-      ]);
+      setRemoteStreams((prev) => {
+        if (prev.find((p) => p.id === userId)) return prev;
+        return [...prev, { id: userId, stream: userStream }];
+      });
     });
 
     return peer;
@@ -148,64 +147,83 @@ const StudyRoom = () => {
   };
 
   const leaveRoom = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+
+    Object.values(peersRef.current).forEach((peer) => peer.destroy());
+    peersRef.current = {};
+
+    socket.emit("leave-room", roomId);
+
     navigate("/");
+  };
+
+  const totalParticipants = remoteStreams.length + 1;
+
+  const getGridCols = () => {
+    if (totalParticipants === 1) return "grid-cols-1";
+    if (totalParticipants === 2) return "grid-cols-1 sm:grid-cols-2";
+    if (totalParticipants <= 4) return "grid-cols-2";
+    return "grid-cols-2 sm:grid-cols-3";
   };
 
   return (
     <div className="h-screen bg-black text-white flex flex-col">
 
-      {/* Video Grid */}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-
-        {/* Local Video */}
+      {/* Video Section */}
+      <div
+        className={`flex-1 grid ${getGridCols()} gap-3 p-3`}
+      >
+        {/* Local */}
         <video
           ref={localVideo}
           autoPlay
+          playsInline
           muted
-          className="rounded-xl border border-gray-700"
+          className="w-full h-full object-cover rounded-xl border border-gray-700"
         />
 
-        {/* Remote Videos */}
+        {/* Remote */}
         {remoteStreams.map(({ id, stream }) => (
           <video
             key={id}
             autoPlay
+            playsInline
             ref={(video) => {
               if (video) video.srcObject = stream;
             }}
-            className="rounded-xl border border-gray-700"
+            className="w-full h-full object-cover rounded-xl border border-gray-700"
           />
         ))}
       </div>
 
       {/* Controls */}
-      <div className="p-4 flex justify-center gap-6 bg-gray-900">
-
+      <div className="p-4 flex flex-wrap justify-center gap-4 bg-gray-900">
         <button
           onClick={toggleMic}
-          className={`px-4 py-2 rounded-lg ${
+          className={`px-5 py-2 rounded-full font-medium ${
             micOn ? "bg-green-600" : "bg-red-600"
           }`}
         >
-          {micOn ? "Mic On 🎤" : "Mic Off 🔇"}
+          {micOn ? "🎤 Mic On" : "🔇 Mic Off"}
         </button>
 
         <button
           onClick={toggleVideo}
-          className={`px-4 py-2 rounded-lg ${
+          className={`px-5 py-2 rounded-full font-medium ${
             videoOn ? "bg-green-600" : "bg-red-600"
           }`}
         >
-          {videoOn ? "Camera On 📷" : "Camera Off 🚫"}
+          {videoOn ? "📷 Camera On" : "🚫 Camera Off"}
         </button>
 
         <button
           onClick={leaveRoom}
-          className="px-4 py-2 rounded-lg bg-red-700 hover:bg-red-800"
+          className="px-5 py-2 rounded-full bg-red-700 hover:bg-red-800 font-medium"
         >
-          Leave ❌
+          ❌ Leave
         </button>
-
       </div>
     </div>
   );
