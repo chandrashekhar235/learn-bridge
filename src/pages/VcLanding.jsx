@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:7777"; // Use local for now
+import BASE_URL from "../config";
 
 const VcLanding = () => {
   const navigate = useNavigate();
@@ -13,23 +12,21 @@ const VcLanding = () => {
   const [loading, setLoading] = useState(false);
 
   // Fetch public rooms
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/vc/public`);
-        setRooms(res.data);
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    };
+  const fetchRooms = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/vc/public`);
+      setRooms(res.data);
+    } catch (err) {
+      console.error("Fetch error:", err.response || err.message);
+    }
+  };
 
+  useEffect(() => {
     fetchRooms();
   }, []);
 
   // Create room
   const createRoom = async () => {
-    console.log("Create clicked");
-
     if (!roomName.trim()) {
       alert("Enter a room name");
       return;
@@ -43,11 +40,24 @@ const VcLanding = () => {
         isPrivate,
       });
 
-      console.log("Created:", res.data);
+      if (!res.data || !res.data._id) {
+        alert("Room created but ID missing");
+        return;
+      }
 
+      // Navigate to room
       navigate(`/vc/${res.data._id}`);
+
+      // Optional: refresh room list
+      fetchRooms();
+
+      // Reset input
+      setRoomName("");
+      setIsPrivate(false);
+
     } catch (err) {
-      console.error("Create error:", err);
+      console.error("Create error:", err.response || err.message);
+      alert("Server not reachable or CORS issue");
     } finally {
       setLoading(false);
     }
@@ -62,7 +72,7 @@ const VcLanding = () => {
 
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
 
-        {/* LEFT SIDE - ROOM LIST */}
+        {/* LEFT SIDE */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Public Channels</h2>
 
@@ -81,7 +91,7 @@ const VcLanding = () => {
           )}
         </div>
 
-        {/* RIGHT SIDE - CREATE ROOM */}
+        {/* RIGHT SIDE */}
         <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
           <h2 className="text-xl font-semibold mb-6">Create New VC</h2>
 
