@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"); // called moongoose tool
 
-const BlogSchema = new mongoose.Schema(
+const BlogSchema = new mongoose.Schema( // defined a structure tht how the data should be saved
   {
     title: {
       type: String,
@@ -12,6 +12,11 @@ const BlogSchema = new mongoose.Schema(
     },
     author: {
       type: String,
+      required: true,
+    },
+    user: {
+      type: mongoose.Schema.types.ObjectId,
+      ref: "User",
       required: true,
     },
     date: {
@@ -29,5 +34,5 @@ const BlogSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Blog", BlogSchema);
+module.exports = mongoose.model("Blog", BlogSchema); // created a object blog tht will use all this 
 

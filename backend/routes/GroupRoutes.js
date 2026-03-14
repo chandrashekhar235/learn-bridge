@@ -3,7 +3,6 @@ const Group = require("../models/Group");
 const protect = require("../middleware/auth");
 
 const router = express.Router();
-console.log("GROUP ROUTES FILE LOADED");
 
 
 // create vc 

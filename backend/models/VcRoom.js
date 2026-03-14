@@ -9,4 +9,4 @@ const vcRoomSchema = new mongoose.Schema({
   participants: [{ type: String }], // store socketIds
 }, { timestamps: true });
 
-module.exports = mongoose.model("VcRoom", vcRoomSchema);
+module.exports = mongoose.model("VcRoom", vcRoomSchema);  

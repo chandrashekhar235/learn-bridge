@@ -22,6 +22,7 @@ router.post("/blogs", protect, async (req, res) => {
       title,
       description,
       author: user.name,
+      user: user._id
     });
 
     await newBlog.save();
@@ -62,15 +63,22 @@ router.put("/blogs/:id", protect, async (req, res) => {
 });
 router.delete("/blogs/:id", protect, async (req, res) => {
   try {
+
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
 
+    // check if user is owner
+    if (blog.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not allowed to delete this blog" });
+    }
+
     await blog.deleteOne();
 
     res.status(200).json({ message: "Blog deleted successfully" });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
