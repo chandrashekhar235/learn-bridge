@@ -49,7 +49,7 @@ const BlogCard = ({ blog }) => {
         By {blog.author}
       </p>
 
-      {blog.user === userId && (
+      {blog.user?.toString() === userId && (
         <button
           onClick={handleDelete}
           className="w-full sm:w-auto 
