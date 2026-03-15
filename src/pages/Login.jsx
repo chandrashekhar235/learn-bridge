@@ -34,8 +34,12 @@ function Login() {
 
       // Save token
       if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
+  localStorage.setItem("token", data.token);
+
+  // decode JWT to get userId
+  const payload = JSON.parse(atob(data.token.split(".")[1]));
+  localStorage.setItem("userId", payload.id);
+}
 
       // Save userId (needed for blog ownership check)
       if (data.user && data.user._id) {
