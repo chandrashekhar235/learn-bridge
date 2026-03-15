@@ -16,11 +16,15 @@ function Login() {
     try {
       const res = await fetch(`${BASE_URL}/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
+
+      console.log("LOGIN RESPONSE:", data); // helpful for debugging
 
       if (!res.ok) {
         alert(data.message || "Login failed");
@@ -28,9 +32,14 @@ function Login() {
         return;
       }
 
-      // ✅ Save token
+      // Save token
       if (data.token) {
         localStorage.setItem("token", data.token);
+      }
+
+      // Save userId (needed for blog ownership check)
+      if (data.user && data.user._id) {
+        localStorage.setItem("userId", data.user._id);
       }
 
       alert("Login successful 🎉");
@@ -51,6 +60,7 @@ function Login() {
         <h2 className="text-xl font-semibold mb-6 text-center">Login</h2>
 
         <form onSubmit={submitForm} className="space-y-4">
+
           <input
             type="email"
             placeholder="Email"
@@ -76,6 +86,7 @@ function Login() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
       </div>
     </div>
