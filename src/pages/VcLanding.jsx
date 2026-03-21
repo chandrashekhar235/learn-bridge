@@ -11,7 +11,7 @@ const VcLanding = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Fetch public rooms
+  // 🔹 Fetch public rooms
   const fetchRooms = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/vc/public`);
@@ -25,7 +25,7 @@ const VcLanding = () => {
     fetchRooms();
   }, []);
 
-  // Create room
+  // 🔹 Create room
   const createRoom = async () => {
     if (!roomName.trim()) {
       alert("Enter a room name");
@@ -35,31 +35,47 @@ const VcLanding = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(`${BASE_URL}/vc/create`, {
-        name: roomName,
-        isPrivate,
-      });
+      const res = await axios.post(
+        `${BASE_URL}/vc/create`,
+        {
+          name: roomName,
+          isPrivate,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-      if (!res.data || !res.data._id) {
-        alert("Room created but ID missing");
-        return;
-      }
-
-      // Navigate to room
       navigate(`/vc/${res.data._id}`);
 
-      // Optional: refresh room list
       fetchRooms();
-
-      // Reset input
       setRoomName("");
       setIsPrivate(false);
 
     } catch (err) {
       console.error("Create error:", err.response || err.message);
-      alert("Server not reachable or CORS issue");
+      alert("Error creating room");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 🔹 Delete room
+  const deleteRoom = async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}/vc/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      fetchRooms();
+
+    } catch (err) {
+      console.error("Delete error:", err.response || err.message);
+      alert("Not allowed or error");
     }
   };
 
@@ -72,7 +88,7 @@ const VcLanding = () => {
 
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
 
-        {/* LEFT SIDE */}
+        {/* 🔹 LEFT SIDE - ROOM LIST */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Public Channels</h2>
 
@@ -82,16 +98,30 @@ const VcLanding = () => {
             rooms.map((room) => (
               <div
                 key={room._id}
-                onClick={() => navigate(`/vc/${room._id}`)}
-                className="bg-gray-800 p-4 rounded-xl mb-3 cursor-pointer hover:bg-gray-700"
+                className="bg-gray-800 p-4 rounded-xl mb-3 flex justify-between items-center hover:bg-gray-700"
               >
-                <p className="font-medium">{room.name}</p>
+                <p
+                  onClick={() => navigate(`/vc/${room._id}`)}
+                  className="cursor-pointer font-medium"
+                >
+                  {room.name}
+                </p>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // 🔥 prevent navigation
+                    deleteRoom(room._id);
+                  }}
+                  className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
               </div>
             ))
           )}
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* 🔹 RIGHT SIDE - CREATE ROOM */}
         <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
           <h2 className="text-xl font-semibold mb-6">Create New VC</h2>
 
@@ -113,7 +143,6 @@ const VcLanding = () => {
           </label>
 
           <button
-            type="button"
             onClick={createRoom}
             disabled={loading}
             className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-semibold"

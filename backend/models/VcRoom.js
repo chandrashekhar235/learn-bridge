@@ -5,7 +5,13 @@ const mongoose = require("mongoose");
 const vcRoomSchema = new mongoose.Schema({
   name: { type: String, required: true },
   isPrivate: { type: Boolean, default: false },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User",
+    required: true,
+   },
+   admins: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", 
+   },
   participants: [{ type: String }], // store socketIds
 }, { timestamps: true });
 
