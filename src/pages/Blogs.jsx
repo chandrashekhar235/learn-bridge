@@ -32,7 +32,7 @@ const Blogs = () => {
 
       <Navbar />
 
-      {/* HEADER */}
+     
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 text-center">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
           Blogs
@@ -57,12 +57,12 @@ const Blogs = () => {
         </p>
       )}
 
-      {/* BLOG LIST */}
+     
       {!loading && !error && (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 grid gap-8">
           {blogs.length === 0 ? (
             <p className="text-gray-400 text-center">
-              No blogs yet. Be the first to publish 🚀
+              Write What You Feel 
             </p>
           ) : (
             blogs.map((blog) => (
@@ -72,13 +72,12 @@ const Blogs = () => {
         </div>
       )}
 
-      {/* WRITE BUTTON */}
       <div className="text-center pb-12">
         <Link
           to="/create-blog"
           className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200"
         >
-          Write a Blog ✍️
+          Write a Blog .... 
         </Link>
       </div>
 
