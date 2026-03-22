@@ -26,7 +26,7 @@ router.post("/create", protect, async (req, res) => {
 // 🔹 DELETE ROOM
 router.delete("/:id", protect, async (req, res) => {
   try {
-    const vc = await VcRoom.findById(req.params.id); // ✅ FIXED
+    const vc = await VcRoom.findById(req.params.id);
 
     if (!vc) {
       return res.status(404).json({ message: "VC not found" });
@@ -34,11 +34,12 @@ router.delete("/:id", protect, async (req, res) => {
 
     const userId = req.user._id;
 
-    const isOwner = vc.owner.toString() === userId.toString();
+    const isOwner =
+      vc.owner && vc.owner.toString() === userId.toString();
 
-   const isAdmin = vc.admins?.some(
-  (admin) => admin.toString() === userId.toString()
-);
+    const isAdmin = vc.admins?.some(
+      (admin) => admin.toString() === userId.toString()
+    );
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: "Not allowed" });
@@ -49,10 +50,10 @@ router.delete("/:id", protect, async (req, res) => {
     res.json({ message: "Deleted successfully" });
 
   } catch (err) {
+    console.error("DELETE ERROR:", err); // 🔥 ADD THIS
     res.status(500).json({ message: err.message });
   }
 });
-
 
 // 🔹 GET PUBLIC ROOMS
 router.get("/public", async (req, res) => {
