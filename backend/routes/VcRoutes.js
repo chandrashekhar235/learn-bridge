@@ -36,9 +36,9 @@ router.delete("/:id", protect, async (req, res) => {
 
     const isOwner = vc.owner.toString() === userId.toString();
 
-    const isAdmin = vc.admins.some(
-      (admin) => admin.toString() === userId.toString()
-    );
+   const isAdmin = vc.admins?.some(
+  (admin) => admin.toString() === userId.toString()
+);
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: "Not allowed" });

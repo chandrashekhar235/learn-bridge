@@ -36,17 +36,17 @@ const VcLanding = () => {
       setLoading(true);
 
       const res = await axios.post(
-        `${BASE_URL}/vc/create`,
-        {
-          name: roomName,
-          isPrivate,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+  `${BASE_URL}/vc/create`,
+  {
+    name: roomName,
+    isPrivate,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  }
+);
 
       navigate(`/vc/${res.data._id}`);
 

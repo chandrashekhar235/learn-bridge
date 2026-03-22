@@ -8,10 +8,12 @@ const vcRoomSchema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User",
     required: true,
    },
-   admins: {
+   admins: [
+  {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", 
-   },
+    ref: "User",
+  }
+],
   participants: [{ type: String }], // store socketIds
 }, { timestamps: true });
 
