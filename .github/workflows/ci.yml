@@ -1,0 +1,43 @@
+name: LearnBridge CI
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install frontend dependencies
+      run: npm install
+
+    - name: Build frontend
+      run: npm run build
+
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm install
+
+    - name: Start backend server
+      env:
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      run: |
+        cd backend
+        node server.js &
+        sleep 5
+
+    - name: Verify backend is running
+      run: |
+        sleep 2
+        curl -f http://localhost:5001 || exit 1
