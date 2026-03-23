@@ -80,7 +80,7 @@ const Blogs = () => {
           Write a Blog .... 
         </Link>
       </div>
-
+//footer
       <Footer />
     </div>
   );
