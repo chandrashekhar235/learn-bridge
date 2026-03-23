@@ -40,4 +40,4 @@ jobs:
     - name: Verify backend is running
       run: |
         sleep 2
-        curl -f http://localhost:5001 || exit 1
+        curl -f http://localhost:7777 || exit 1
