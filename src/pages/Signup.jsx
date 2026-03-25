@@ -47,9 +47,9 @@ function Signup() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 px-4">
       <div
-        className="bg-gray-900 text-white p-8 rounded-xl w-full max-w-md relative"
+        className="bg-gray-900 text-white p-6 sm:p-8 rounded-xl w-full max-w-md relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button

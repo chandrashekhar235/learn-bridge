@@ -69,9 +69,9 @@ const Profile = () => {
   if (!user || !formData) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="pb-10 w-full max-w-md">
-        <h1 className="text-5xl font-bold pb-10 text-center text-white">
+        <h1 className="text-3xl sm:text-5xl font-bold pb-10 text-center text-white">
           Account Details
         </h1>
 
@@ -86,7 +86,7 @@ const Profile = () => {
             <img
               src={`${BASE_URL}${user.avatar}`}   // ✅ fixed here also
               alt="profile"
-              className="w-60 h-60 rounded-full object-cover"
+              className="w-40 h-40 sm:w-60 sm:h-60 rounded-full object-cover"
             />
           </div>
         )}

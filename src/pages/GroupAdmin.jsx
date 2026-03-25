@@ -41,9 +41,9 @@ const GroupAdmin = () => {
   if (!group) return <div className="text-white p-10">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-black text-white p-4 sm:p-8">
 
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">
         Admin Panel: {group.name}
       </h1>
 
@@ -59,7 +59,7 @@ const GroupAdmin = () => {
           group.pendingRequests.map(user => (
             <div
               key={user._id}
-              className="bg-gray-800 p-4 rounded-lg mb-3 flex justify-between items-center"
+              className="bg-gray-800 p-4 rounded-lg mb-3 flex flex-col sm:flex-row justify-between sm:items-center gap-3"
             >
               <div>
                 <p className="font-semibold">{user.name}</p>

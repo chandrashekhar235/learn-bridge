@@ -46,10 +46,10 @@ const Rooms = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient from-gray-900 to-black text-white p-8">
+    <div className="min-h-screen bg-gradient from-gray-900 to-black text-white p-4 sm:p-8">
       
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Study Rooms</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">Study Rooms</h1>
         <button
           onClick={() => navigate("/create-group")}
           className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700"
@@ -60,7 +60,7 @@ const Rooms = () => {
 
       {/* Public Rooms */}
       <h2 className="text-xl mb-4 text-green-400">Public Rooms</h2>
-      <div className="grid md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
         {rooms
           .filter((r) => r.type === "public")
           .map((room) => (
@@ -89,7 +89,7 @@ const Rooms = () => {
 
       {/* Private Rooms */}
       <h2 className="text-xl mb-4 text-yellow-400">Private Rooms</h2>
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {rooms
           .filter((r) => r.type === "private")
           .map((room) => (

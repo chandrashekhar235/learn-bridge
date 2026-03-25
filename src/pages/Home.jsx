@@ -13,32 +13,21 @@ const Home = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="flex flex-col items-center flex-1 px-40 text-center mt-40">
-        <h2 className="text-8xl text-[#f0f2f5]">
-          Bridge <span className="text-blue-500"> To</span>{" "}
-          <span> Learning </span>
+      {/* HERO SECTION */}
+      <div className="flex flex-col items-center justify-center flex-1 px-4 sm:px-10 md:px-20 text-center">
+
+        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[#f0f2f5] leading-tight">
+          Bridge <span className="text-blue-500">To</span> Learning
         </h2>
 
-        <p className="text-2xl text-slate-600 mt-5 max-w-2xl">
+        <p className="text-sm sm:text-base md:text-lg text-slate-400 mt-4 max-w-xl">
           Study together, stay consistent, and grow with the right people.
         </p>
 
-        <div className="flex flex-col items-center mt-10 space-y-6">
-    
-          <div
-            className="
-              text-[#739ddb]
-              text-2xl
-              py-5
-              rounded-2xl
-              hover:shadow-[0_18px_55px_rgba(0,0,0,0.18)]
-              transition-shadow
-              float-right-left
-            "
-          >
-            <Button />
-          </div>
+        <div className="mt-8">
+          <Button />
         </div>
+
       </div>
 
       <Footer />

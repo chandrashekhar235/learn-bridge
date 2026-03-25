@@ -46,19 +46,23 @@ export default function Connect() {
     <div className="flex flex-col h-screen">
       <Navbar />
 
-      
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
 
-        <div className="w-80  border-r flex flex-col">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">People</h2>
+        {/* PEOPLE SIDEBAR — full width on mobile, fixed width on desktop */}
+        <div
+          className={`${
+            selectedUser ? "hidden md:flex" : "flex"
+          } w-full md:w-80 border-r border-white/10 flex-col`}
+        >
+          <div className="p-4 border-b border-white/10">
+            <h2 className="text-lg font-semibold text-white">People</h2>
           </div>
 
-          <div className=" text-white flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="text-white flex-1 overflow-y-auto p-4 space-y-3">
             {users.map((user) => (
               <div
                 key={user.id}
-                className="p-3 rounded-lg border flex justify-between items-center hover:bg-blue-300 cursor-pointer"
+                className="p-3 rounded-lg border border-white/10 flex justify-between items-center hover:bg-white/5 cursor-pointer transition"
                 onClick={() =>
                   user.status === "friends" && setSelectedUser(user)
                 }
@@ -90,7 +94,7 @@ export default function Connect() {
                       e.stopPropagation();
                       acceptRequest(user.id);
                     }}
-                    className="border px-3 py-1 rounded text-sm"
+                    className="border border-white/20 text-white px-3 py-1 rounded text-sm"
                   >
                     Accept
                   </button>
@@ -100,15 +104,26 @@ export default function Connect() {
           </div>
         </div>
 
- //chat section 
-        <div className="flex-1 flex flex-col ">
+        {/* CHAT SECTION — hidden on mobile when no user selected */}
+        <div
+          className={`${
+            selectedUser ? "flex" : "hidden md:flex"
+          } flex-1 flex-col`}
+        >
           {selectedUser ? (
             <>
-              <div className="p-4 border-b font-semibold">
+              <div className="p-4 border-b border-white/10 font-semibold text-white flex items-center gap-3">
+                {/* Back button — mobile only */}
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="md:hidden text-gray-400 hover:text-white text-xl"
+                >
+                  ←
+                </button>
                 {selectedUser.name}
               </div>
 
-              <div className="flex-1 p-6 overflow-y-auto space-y-4">
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
                 {(messages[selectedUser.id] || []).map((msg, i) => (
                   <div
                     key={i}
@@ -119,10 +134,10 @@ export default function Connect() {
                     }`}
                   >
                     <div
-                      className={`px-4 py-2 rounded-2xl max-w-xs ${
+                      className={`px-4 py-2 rounded-2xl max-w-[80%] sm:max-w-xs ${
                         msg.sender === "me"
                           ? "bg-blue-600 text-white"
-                          : "bg-gray-200"
+                          : "bg-gray-700 text-white"
                       }`}
                     >
                       {msg.text}
@@ -131,7 +146,7 @@ export default function Connect() {
                 ))}
               </div>
 
-              <div className="p-4 border-t flex gap-2">
+              <div className="p-3 sm:p-4 border-t border-white/10 flex gap-2">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -139,11 +154,11 @@ export default function Connect() {
                     e.key === "Enter" && sendMessage()
                   }
                   placeholder="Type message..."
-                  className="flex-1 border rounded px-3 py-2"
+                  className="flex-1 border border-white/20 bg-transparent text-white rounded px-3 py-2 text-sm sm:text-base"
                 />
                 <button
                   onClick={sendMessage}
-                  className="bg-blue-600 text-white px-4 rounded"
+                  className="bg-blue-600 text-white px-4 rounded text-sm sm:text-base"
                 >
                   Send
                 </button>

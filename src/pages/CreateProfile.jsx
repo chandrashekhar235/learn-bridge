@@ -48,10 +48,10 @@ const CreateProfile = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-900 p-8 rounded-lg w-96"
+        className="bg-gray-900 p-6 sm:p-8 rounded-lg w-full max-w-md"
       >
         <h2 className="text-white text-xl mb-4">Create Your Profile</h2>
 

@@ -80,9 +80,9 @@ const VcLanding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-4 sm:p-6">
 
-      <h1 className="text-3xl font-bold text-center mb-10">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-10">
         🎙 Voice Channels
       </h1>
 

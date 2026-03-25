@@ -59,8 +59,8 @@ function Login() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-      <div className="bg-gray-900 text-white p-8 rounded-xl w-full max-w-md">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 px-4">
+      <div className="bg-gray-900 text-white p-6 sm:p-8 rounded-xl w-full max-w-md">
         <h2 className="text-xl font-semibold mb-6 text-center">Login</h2>
 
         <form onSubmit={submitForm} className="space-y-4">
