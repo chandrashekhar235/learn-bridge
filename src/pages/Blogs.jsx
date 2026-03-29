@@ -28,7 +28,7 @@ const Blogs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient from-[#050b1e] via-[#0a1230] to-[#0b1b3f]">
+    <div className="min-h-screen bg-gradient-to-br from-[#050b1e] via-[#0a1230] to-[#0b1b3f]">
 
       <Navbar />
 
@@ -80,7 +80,7 @@ const Blogs = () => {
           Write a Blog .... 
         </Link>
       </div>
-//footer
+      {/* Footer */}
       <Footer />
     </div>
   );

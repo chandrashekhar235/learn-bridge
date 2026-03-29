@@ -46,7 +46,7 @@ const Rooms = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient from-gray-900 to-black text-white p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-4 sm:p-8">
       
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Study Rooms</h1>

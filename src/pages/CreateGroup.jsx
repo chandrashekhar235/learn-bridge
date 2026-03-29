@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-
-const API = "http://localhost:7777";
+import BASE_URL from "../config";
 
 const CreateGroup = () => {
   const navigate = useNavigate();
@@ -27,7 +26,7 @@ const CreateGroup = () => {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.post(`${API}/groups`, formData, {
+      await axios.post(`${BASE_URL}/groups`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

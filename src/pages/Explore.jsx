@@ -1,6 +1,5 @@
 import React from "react";
 import Navbar from "../components/Navbar";
-import Vc from "./Vc";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
 import "../animations.css";

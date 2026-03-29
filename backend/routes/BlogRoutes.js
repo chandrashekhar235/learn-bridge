@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.post("/blogs", protect, async (req, res) => {
   try {
-    console.log("REQ USER:", req.user);  // 🔍 Debug line
 
     const { title, description } = req.body;
 

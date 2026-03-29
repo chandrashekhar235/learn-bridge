@@ -1,5 +1,4 @@
 import React from 'react';
-import Explore from '../pages/Explore';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 

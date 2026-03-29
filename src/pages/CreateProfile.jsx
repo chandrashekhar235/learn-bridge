@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:7777";
+import BASE_URL from "../config";
 
 const CreateProfile = () => {
   const navigate = useNavigate();
@@ -32,7 +31,7 @@ const CreateProfile = () => {
       data.append("hobbies", formData.hobbies);
       if (avatar) data.append("avatar", avatar);
 
-      await axios.post(`${API}/profile/create`, data, {
+      await axios.post(`${BASE_URL}/profile/create`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

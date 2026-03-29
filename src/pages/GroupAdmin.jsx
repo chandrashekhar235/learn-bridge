@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:7777";
+import BASE_URL from "../config";
 
 const GroupAdmin = () => {
   const { id } = useParams();
@@ -16,7 +15,7 @@ const GroupAdmin = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(`${API}/groups/${id}`, {
+      const res = await axios.get(`${BASE_URL}/groups/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -30,7 +29,7 @@ const GroupAdmin = () => {
     const token = localStorage.getItem("token");
 
     await axios.post(
-      `${API}/groups/${id}/approve/${userId}`,
+      `${BASE_URL}/groups/${id}/approve/${userId}`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );

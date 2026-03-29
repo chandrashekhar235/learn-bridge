@@ -9,7 +9,7 @@ const Footer = () => {
         <Link to="/explore" className="hover:text-white">Explore</Link>
         <Link to="/about" className="hover:text-white">About</Link>
       </div>
-      <p className="text-xs sm:text-sm">© 2025 LearnBridge. All rights reserved.</p>
+      <p className="text-xs sm:text-sm">© {new Date().getFullYear()} LearnBridge. All rights reserved.</p>
     </footer>
   )
 }
