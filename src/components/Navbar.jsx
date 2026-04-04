@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import BASE_URL from "../config";
+import Logoutb from "./Logoutb";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -122,7 +123,7 @@ const Navbar = () => {
               onClick={logout}
               className="text-sm text-gray-400 hover:text-red-500"
             >
-              Logout
+              <Logoutb />
             </button>
           </>
         )}
