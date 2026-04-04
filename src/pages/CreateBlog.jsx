@@ -45,11 +45,11 @@ const CreateBlog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#050b1e] via-[#0a1230] to-[#0b1b3f] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#050b1e] via-[#0a1230] to-[#0b1b3f] text-white flex flex-col">
 
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 flex-1">
 
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-10">
           Share Your Thought ✍️
@@ -88,7 +88,9 @@ const CreateBlog = () => {
         </form>
       </div>
 
-      <Footer />
+      <div className="pt-8">
+        <Footer />
+      </div>
     </div>
   );
 };

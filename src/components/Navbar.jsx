@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import BASE_URL from "../config";
 
 const Navbar = () => {
@@ -8,10 +9,24 @@ const Navbar = () => {
   const menuRef = useRef(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = !!token;
+
+  // Always fetch user profile from DB when logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      axios
+        .get(`${BASE_URL}/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setUser(res.data);
+        })
+        .catch(() => {});
+    }
+  }, [isLoggedIn]);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -98,7 +113,7 @@ const Navbar = () => {
                   {user?.name?.charAt(0)?.toUpperCase()}
                 </div>
               )}
-              <span className="text-red-400">
+              <span className="text-gray-200">
                 {user?.name || "Profile"}
               </span>
             </button>
@@ -165,9 +180,20 @@ const Navbar = () => {
                     setMenuOpen(false);
                     navigate("/profile");
                   }}
-                  className="text-left hover:text-white"
+                  className="flex items-center space-x-2 hover:text-white"
                 >
-                  Profile
+                  {user?.avatar ? (
+                    <img
+                      src={`${BASE_URL}${user.avatar}`}
+                      alt="avatar"
+                      className="w-7 h-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                      {user?.name?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
+                  <span>{user?.name || "Profile"}</span>
                 </button>
 
                 <button

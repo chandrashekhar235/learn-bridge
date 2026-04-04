@@ -4,7 +4,7 @@
   
 }
 @keyframes floatLeftRight {
-  0%, 200% {
+  0%, 100% {
     transform: translateX(0);
   }
   50% {

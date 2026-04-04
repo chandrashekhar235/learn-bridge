@@ -34,6 +34,14 @@ function Signup() {
         localStorage.setItem("token", data.token);
       }
 
+      // Save user data for Navbar profile display
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.user._id) {
+          localStorage.setItem("userId", data.user._id);
+        }
+      }
+
       alert("Account created successfully 🎉");
 
       navigate("/explore", { replace: true });

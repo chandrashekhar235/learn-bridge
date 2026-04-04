@@ -46,6 +46,11 @@ function Login() {
         localStorage.setItem("userId", data.user._id);
       }
 
+      // Save user object for Navbar (avatar, name)
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
       alert("Login successful 🎉");
 
       navigate("/explore", { replace: true });

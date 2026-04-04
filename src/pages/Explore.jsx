@@ -6,11 +6,10 @@ import "../animations.css";
 
 const Explore = () => {
   return (
-    <div>
-     <div  className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto mt-10 p-4">
+      <div className="max-w-6xl mx-auto mt-10 p-4 flex-1">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
           {/* Card 1 : Blogs */}
@@ -95,7 +94,6 @@ const Explore = () => {
 
         </div>
       </div>
-</div>
       <Footer />
       </div>
   );
