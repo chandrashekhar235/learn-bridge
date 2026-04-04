@@ -34,26 +34,36 @@ function Login() {
 
       // Save token
       if (data.token) {
-  localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.token);
 
-  // decode JWT to get userId
-  const payload = JSON.parse(atob(data.token.split(".")[1]));
-  localStorage.setItem("userId", payload.id);
-}
+        // decode JWT to get userId
+        const payload = JSON.parse(atob(data.token.split(".")[1]));
+        localStorage.setItem("userId", payload.id);
+      }
 
       // Save userId (needed for blog ownership check)
       if (data.user && data.user._id) {
         localStorage.setItem("userId", data.user._id);
       }
 
-      // Save user object for Navbar (avatar, name)
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
       alert("Login successful 🎉");
 
-      navigate("/explore", { replace: true });
+      // Check if user has a profile set up (avatar uploaded)
+      try {
+        const profileRes = await fetch(`${BASE_URL}/profile`, {
+          headers: { Authorization: `Bearer ${data.token}` },
+        });
+        const profile = await profileRes.json();
+
+        if (!profile.avatar) {
+          // Old account — no profile photo yet
+          navigate("/create-profile", { replace: true });
+        } else {
+          navigate("/explore", { replace: true });
+        }
+      } catch {
+        navigate("/explore", { replace: true });
+      }
 
     } catch (err) {
       console.error(err);

@@ -42,9 +42,9 @@ function Signup() {
         }
       }
 
-      alert("Account created successfully 🎉");
+      alert("Account created successfully 🎉 — Let's set up your profile!");
 
-      navigate("/explore", { replace: true });
+      navigate("/create-profile", { replace: true });
 
     } catch (err) {
       console.error(err);
