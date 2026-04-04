@@ -58,7 +58,20 @@ router.delete("/:id", protect, async (req, res) => {
 // 🔹 GET PUBLIC ROOMS
 router.get("/public", async (req, res) => {
   try {
-    const rooms = await VcRoom.find({ isPrivate: false });
+    const rooms = await VcRoom.find({ isPrivate: false }).sort({ createdAt: -1 });
+    res.json(rooms);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 🔹 GET PRIVATE ROOMS (user's own)
+router.get("/private", protect, async (req, res) => {
+  try {
+    const rooms = await VcRoom.find({
+      isPrivate: true,
+      owner: req.user._id,
+    }).sort({ createdAt: -1 });
     res.json(rooms);
   } catch (err) {
     res.status(500).json({ message: err.message });

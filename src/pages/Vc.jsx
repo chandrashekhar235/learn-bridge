@@ -7,7 +7,7 @@ const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL ||
   "https://learn-bridge-backend.onrender.com";
 
-const socket = io(SOCKET_URL, {                                                                                               
+const socket = io(SOCKET_URL, {
   transports: ["websocket"],
   withCredentials: true,
 });
@@ -23,6 +23,26 @@ const StudyRoom = () => {
   const [remoteStreams, setRemoteStreams] = useState([]);
   const [micOn, setMicOn] = useState(true);
   const [videoOn, setVideoOn] = useState(true);
+  const [screenSharing, setScreenSharing] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  // Timer for session duration
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hrs > 0) {
+      return `${hrs}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    return `${mins}:${String(secs).padStart(2, "0")}`;
+  };
 
   useEffect(() => {
     let currentStream;
@@ -66,9 +86,9 @@ const StudyRoom = () => {
             );
           }
         });
-
       } catch (err) {
         console.error("Camera/Mic error:", err);
+        alert("Could not access camera or microphone. Please check permissions.");
       }
     };
 
@@ -146,6 +166,64 @@ const StudyRoom = () => {
     setVideoOn(track.enabled);
   };
 
+  const toggleScreenShare = async () => {
+    if (!stream) return;
+
+    if (!screenSharing) {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+        });
+        const screenTrack = screenStream.getVideoTracks()[0];
+
+        // Replace track in all peers
+        Object.values(peersRef.current).forEach((peer) => {
+          const sender = peer._pc
+            ?.getSenders()
+            .find((s) => s.track?.kind === "video");
+          if (sender) sender.replaceTrack(screenTrack);
+        });
+
+        // Show screen in local video
+        if (localVideo.current) {
+          localVideo.current.srcObject = screenStream;
+        }
+
+        screenTrack.onended = () => {
+          // Revert to camera
+          const camTrack = stream.getVideoTracks()[0];
+          Object.values(peersRef.current).forEach((peer) => {
+            const sender = peer._pc
+              ?.getSenders()
+              .find((s) => s.track?.kind === "video");
+            if (sender) sender.replaceTrack(camTrack);
+          });
+          if (localVideo.current) {
+            localVideo.current.srcObject = stream;
+          }
+          setScreenSharing(false);
+        };
+
+        setScreenSharing(true);
+      } catch (err) {
+        console.error("Screen share error:", err);
+      }
+    } else {
+      // Stop screen sharing, revert to camera
+      const camTrack = stream.getVideoTracks()[0];
+      Object.values(peersRef.current).forEach((peer) => {
+        const sender = peer._pc
+          ?.getSenders()
+          .find((s) => s.track?.kind === "video");
+        if (sender) sender.replaceTrack(camTrack);
+      });
+      if (localVideo.current) {
+        localVideo.current.srcObject = stream;
+      }
+      setScreenSharing(false);
+    }
+  };
+
   const leaveRoom = () => {
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
@@ -156,7 +234,7 @@ const StudyRoom = () => {
 
     socket.emit("leave-room", roomId);
 
-    navigate("/");
+    navigate("/vc");
   };
 
   const totalParticipants = remoteStreams.length + 1;
@@ -169,60 +247,113 @@ const StudyRoom = () => {
   };
 
   return (
-    <div className="h-screen bg-black text-white flex flex-col">
+    <div className="h-screen bg-[#0a0a0a] text-white flex flex-col">
+      {/* Top Bar */}
+      <div className="px-4 py-2 bg-gray-900/80 backdrop-blur-sm flex items-center justify-between border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-sm text-gray-400">
+            Room: <span className="text-white font-medium">{roomId.slice(0, 8)}...</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-500">
+            ⏱ {formatTime(elapsedTime)}
+          </span>
+          <span className="text-sm text-gray-500">
+            👥 {totalParticipants} {totalParticipants === 1 ? "person" : "people"}
+          </span>
+        </div>
+      </div>
 
       {/* Video Section */}
-      <div
-        className={`flex-1 grid ${getGridCols()} gap-3 p-3`}
-      >
-        {/* Local */}
-        <video
-          ref={localVideo}
-          autoPlay
-          playsInline
-          muted
-          className="w-full h-full object-cover rounded-xl border border-gray-700"
-        />
-
-        {/* Remote */}
-        {remoteStreams.map(({ id, stream }) => (
+      <div className={`flex-1 grid ${getGridCols()} gap-2 p-2 sm:gap-3 sm:p-3`}>
+        {/* Local Video — NOT mirrored (real view) */}
+        <div className="relative rounded-xl overflow-hidden bg-gray-900 border border-gray-800">
           <video
-            key={id}
+            ref={localVideo}
             autoPlay
             playsInline
-            ref={(video) => {
-              if (video) video.srcObject = stream;
-            }}
-            className="w-full h-full object-cover rounded-xl border border-gray-700"
+            muted
+            className="w-full h-full object-cover"
           />
+          {/* "You" label */}
+          <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-gray-300 flex items-center gap-1">
+            <span>You</span>
+            {!micOn && <span className="text-red-400">🔇</span>}
+            {!videoOn && <span className="text-red-400">📷</span>}
+          </div>
+          {/* Video off overlay */}
+          {!videoOn && (
+            <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold">
+                You
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Remote Videos */}
+        {remoteStreams.map(({ id, stream: remoteStream }) => (
+          <div
+            key={id}
+            className="relative rounded-xl overflow-hidden bg-gray-900 border border-gray-800"
+          >
+            <video
+              autoPlay
+              playsInline
+              ref={(video) => {
+                if (video) video.srcObject = remoteStream;
+              }}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-gray-300">
+              Participant
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Controls */}
-      <div className="p-4 flex flex-wrap justify-center gap-4 bg-gray-900">
+      {/* Controls Bar */}
+      <div className="px-4 py-3 flex flex-wrap justify-center gap-3 bg-gray-900/80 backdrop-blur-sm border-t border-white/5">
         <button
           onClick={toggleMic}
-          className={`px-5 py-2 rounded-full font-medium ${
-            micOn ? "bg-green-600" : "bg-red-600"
+          className={`px-4 py-2.5 rounded-full font-medium text-sm flex items-center gap-2 transition-all ${
+            micOn
+              ? "bg-gray-700 hover:bg-gray-600 text-white"
+              : "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20"
           }`}
         >
-          {micOn ? "🎤 Mic On" : "🔇 Mic Off"}
+          {micOn ? "🎤" : "🔇"} {micOn ? "Mic" : "Muted"}
         </button>
 
         <button
           onClick={toggleVideo}
-          className={`px-5 py-2 rounded-full font-medium ${
-            videoOn ? "bg-green-600" : "bg-red-600"
+          className={`px-4 py-2.5 rounded-full font-medium text-sm flex items-center gap-2 transition-all ${
+            videoOn
+              ? "bg-gray-700 hover:bg-gray-600 text-white"
+              : "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20"
           }`}
         >
-          {videoOn ? "📷 Camera On" : "🚫 Camera Off"}
+          {videoOn ? "📷" : "🚫"} {videoOn ? "Camera" : "Camera Off"}
+        </button>
+
+        <button
+          onClick={toggleScreenShare}
+          className={`px-4 py-2.5 rounded-full font-medium text-sm flex items-center gap-2 transition-all ${
+            screenSharing
+              ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20"
+              : "bg-gray-700 hover:bg-gray-600 text-white"
+          }`}
+        >
+           {screenSharing ? "Stop Share" : "Share Screen"}
         </button>
 
         <button
           onClick={leaveRoom}
-          className="px-5 py-2 rounded-full bg-red-700 hover:bg-red-800 font-medium"
+          className="px-5 py-2.5 rounded-full bg-red-700 hover:bg-red-800 font-medium text-sm flex items-center gap-2 transition-all shadow-lg shadow-red-700/20"
         >
-          ❌ Leave
+           Leave
         </button>
       </div>
     </div>

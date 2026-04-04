@@ -84,8 +84,19 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("leave-room", (roomId) => {
+    socket.to(roomId).emit("user-left", socket.id);
+    socket.leave(roomId);
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    // Notify all rooms this socket was in
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        socket.to(room).emit("user-left", socket.id);
+      }
+    }
   });
 });
 
