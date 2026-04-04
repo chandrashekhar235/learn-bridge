@@ -179,7 +179,7 @@ const VcLanding = () => {
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-3 h-3" />
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-xl font-semibold">
                 Private Channels
               </h2>
             </div>
