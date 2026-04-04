@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const VcRoom = require("../models/VcRoom");
-const protect = require("../middleware/auth"); // ✅ IMPORT THIS
+const protect = require("../middleware/auth");
 
 // 🔹 CREATE ROOM
 router.post("/create", protect, async (req, res) => {
@@ -11,19 +11,27 @@ router.post("/create", protect, async (req, res) => {
 
     const room = await VcRoom.create({
       name,
-      isPrivate,
+      isPrivate: !!isPrivate,
       owner: req.user._id,
       admins: [],
     });
 
-    res.status(201).json(room);
+    // Populate owner before sending back
+    const populated = await VcRoom.findById(room._id).populate(
+      "owner",
+      "name email"
+    );
+
+    res.status(201).json(populated);
   } catch (err) {
+    console.error("CREATE VC ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-
 // 🔹 DELETE ROOM
+// Public VCs  → anyone logged-in can delete
+// Private VCs → only the owner can delete
 router.delete("/:id", protect, async (req, res) => {
   try {
     const vc = await VcRoom.findById(req.params.id);
@@ -32,35 +40,37 @@ router.delete("/:id", protect, async (req, res) => {
       return res.status(404).json({ message: "VC not found" });
     }
 
-    const userId = req.user._id;
+    const userId = req.user._id.toString();
+    const isOwner = vc.owner && vc.owner.toString() === userId;
 
-    const isOwner =
-      vc.owner && vc.owner.toString() === userId.toString();
-
-    const isAdmin = vc.admins?.some(
-      (admin) => admin.toString() === userId.toString()
-    );
-
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Not allowed" });
+    // Private VC → only owner can delete
+    if (vc.isPrivate && !isOwner) {
+      return res
+        .status(403)
+        .json({ message: "Only the owner can delete a private channel" });
     }
+
+    // Public VC → anyone can delete (no restriction)
 
     await vc.deleteOne();
 
     res.json({ message: "Deleted successfully" });
-
   } catch (err) {
-    console.error("DELETE ERROR:", err); // 🔥 ADD THIS
+    console.error("DELETE ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// 🔹 GET PUBLIC ROOMS
+// 🔹 GET PUBLIC ROOMS (anyone can see these)
 router.get("/public", async (req, res) => {
   try {
-    const rooms = await VcRoom.find({ isPrivate: false }).sort({ createdAt: -1 });
+    const rooms = await VcRoom.find({ isPrivate: false })
+      .populate("owner", "name email")
+      .sort({ createdAt: -1 });
+
     res.json(rooms);
   } catch (err) {
+    console.error("GET PUBLIC ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -71,9 +81,13 @@ router.get("/private", protect, async (req, res) => {
     const rooms = await VcRoom.find({
       isPrivate: true,
       owner: req.user._id,
-    }).sort({ createdAt: -1 });
+    })
+      .populate("owner", "name email")
+      .sort({ createdAt: -1 });
+
     res.json(rooms);
   } catch (err) {
+    console.error("GET PRIVATE ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });

@@ -16,6 +16,19 @@ const VcLanding = () => {
 
   const token = localStorage.getItem("token");
 
+  // Decode the logged-in user's ID from the JWT
+  const getCurrentUserId = () => {
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.id || payload._id || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const currentUserId = getCurrentUserId();
+
   // Fetch all rooms (public + user's private)
   const fetchRooms = async () => {
     try {
@@ -33,7 +46,7 @@ const VcLanding = () => {
       setPublicRooms(pubRes.data);
       setPrivateRooms(privRes.data);
     } catch (err) {
-      console.error("Fetch error:", err.response || err.message);
+      console.error("Fetch error:", err.response?.data || err.message);
     } finally {
       setFetching(false);
     }
@@ -64,9 +77,14 @@ const VcLanding = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      // Clear form and refresh list instead of navigating away
+      setRoomName("");
+      await fetchRooms();
+
+      // Then navigate to the room
       navigate(`/vc/${res.data._id}`);
     } catch (err) {
-      console.error("Create error:", err.response || err.message);
+      console.error("Create error:", err.response?.data || err.message);
       alert("Error creating room");
     } finally {
       setLoading(false);
@@ -74,7 +92,17 @@ const VcLanding = () => {
   };
 
   // Delete room
-  const deleteRoom = async (id) => {
+  const deleteRoom = async (id, roomIsPrivate, roomOwnerId) => {
+    // Private rooms → only owner can delete
+    if (roomIsPrivate) {
+      const ownerId =
+        typeof roomOwnerId === "object" ? roomOwnerId._id : roomOwnerId;
+      if (ownerId?.toString() !== currentUserId?.toString()) {
+        alert("Only the owner can delete a private channel");
+        return;
+      }
+    }
+
     if (!confirm("Delete this channel?")) return;
 
     try {
@@ -83,9 +111,28 @@ const VcLanding = () => {
       });
       fetchRooms();
     } catch (err) {
-      console.error("Delete error:", err.response || err.message);
-      alert("Not allowed or error");
+      console.error("Delete error:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Not allowed or error");
     }
+  };
+
+  // Get owner display name
+  const getOwnerName = (room) => {
+    if (room.owner && typeof room.owner === "object") {
+      return room.owner.name || room.owner.email || "Unknown";
+    }
+    return "Unknown";
+  };
+
+  // Check if user can delete
+  const canDelete = (room) => {
+    if (!token) return false;
+    // Public rooms → anyone logged-in can delete
+    if (!room.isPrivate) return true;
+    // Private rooms → only owner
+    const ownerId =
+      typeof room.owner === "object" ? room.owner._id : room.owner;
+    return ownerId?.toString() === currentUserId?.toString();
   };
 
   // Room card component
@@ -98,6 +145,8 @@ const VcLanding = () => {
       color === "green"
         ? "bg-green-500/20 text-green-400"
         : "bg-amber-500/20 text-amber-400";
+
+    const showDelete = canDelete(room);
 
     return (
       <div
@@ -115,20 +164,32 @@ const VcLanding = () => {
               {room.name}
             </p>
             <p className="text-xs text-gray-500">
-              Created {new Date(room.createdAt).toLocaleDateString()}
+              by {getOwnerName(room)} •{" "}
+              {new Date(room.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            deleteRoom(room._id);
-          }}
-          className="text-gray-600 hover:text-red-400 transition-colors text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100"
-        >
-          ✕
-        </button>
+        {showDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteRoom(
+                room._id,
+                room.isPrivate,
+                room.owner
+              );
+            }}
+            className="text-gray-600 hover:text-red-400 transition-colors text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100"
+            title={
+              room.isPrivate
+                ? "Delete (owner only)"
+                : "Delete"
+            }
+          >
+            🗑️
+          </button>
+        )}
       </div>
     );
   };
@@ -153,6 +214,9 @@ const VcLanding = () => {
               <h2 className="text-lg font-semibold ">
                 Public Channels
               </h2>
+              <span className="text-xs text-gray-500 ml-auto">
+                {publicRooms.length} channel{publicRooms.length !== 1 ? "s" : ""}
+              </span>
             </div>
 
             <div className="space-y-3">
@@ -182,6 +246,9 @@ const VcLanding = () => {
               <h2 className="text-xl font-semibold">
                 Private Channels
               </h2>
+              <span className="text-xs text-gray-500 ml-auto">
+                {privateRooms.length} channel{privateRooms.length !== 1 ? "s" : ""}
+              </span>
             </div>
 
             <div className="space-y-3">
@@ -251,6 +318,12 @@ const VcLanding = () => {
               >
                 {loading ? "Creating..." : "Create Channel"}
               </button>
+
+              <p className="text-xs text-gray-600 mt-3 text-center">
+                {isPrivate
+                  ? "🔒 Only you can see & delete this channel"
+                  : "🌐 Anyone can see & delete this channel"}
+              </p>
             </div>
           </div>
         </div>
