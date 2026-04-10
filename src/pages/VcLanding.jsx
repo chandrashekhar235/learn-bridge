@@ -40,7 +40,7 @@ const VcLanding = () => {
           ? axios.get(`${BASE_URL}/vc/private`, {
               headers: { Authorization: `Bearer ${token}` },
             })
-          : Promise.resolve({ data: [] }),
+          : axios.get(`${BASE_URL}/vc/private`),
       ]);
 
       setPublicRooms(pubRes.data);
@@ -88,6 +88,23 @@ const VcLanding = () => {
       alert("Error creating room");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Request Access
+  const requestAccess = async (id) => {
+    if (!token) {
+      alert("Please login to request access");
+      return;
+    }
+    try {
+      await axios.post(`${BASE_URL}/vc/${id}/request`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Access request sent!");
+      fetchRooms();
+    } catch (err) {
+      alert(err.response?.data?.message || "Error sending request");
     }
   };
 
@@ -147,11 +164,22 @@ const VcLanding = () => {
         : "bg-amber-500/20 text-amber-400";
 
     const showDelete = canDelete(room);
+    const isMember = room.members?.includes(currentUserId);
+    const isPending = room.pendingRequests?.includes(currentUserId);
+    const isOwner = (typeof room.owner === "object" ? room.owner._id : room.owner) === currentUserId;
 
     return (
       <div
         className={`bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border ${borderColor} ${hoverBg} transition-all duration-300 flex justify-between items-center cursor-pointer group`}
-        onClick={() => navigate(`/vc/${room._id}`)}
+        onClick={() => {
+          if (!room.isPrivate || isMember || isOwner) {
+            navigate(`/vc/${room._id}`);
+          } else if (isPending) {
+            alert("Request is pending approval");
+          } else {
+            requestAccess(room._id);
+          }
+        }}
       >
         <div className="flex items-center gap-3 min-w-0">
           <div
@@ -167,6 +195,11 @@ const VcLanding = () => {
               by {getOwnerName(room)} •{" "}
               {new Date(room.createdAt).toLocaleDateString()}
             </p>
+            {room.isPrivate && !isMember && !isOwner && (
+              <p className="text-[10px] text-amber-500 mt-0.5">
+                {isPending ? "⏳ Pending Approval" : "🔒 Request to Join"}
+              </p>
+            )}
           </div>
         </div>
 
@@ -289,35 +322,35 @@ const VcLanding = () => {
 
               {/* Toggle for Public / Private */}
               <div className="flex items-center gap-3 mb-6">
-                <button
-                  onClick={() => setIsPrivate(false)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                    !isPrivate
-                      ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
-                      : "bg-gray-700/50 text-gray-400 hover:bg-gray-700"
-                  }`}
-                >
-                  🌐 Public
-                </button>
-                <button
-                  onClick={() => setIsPrivate(true)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isPrivate
-                      ? "text-white shadow-lg shadow-amber-600/20"
-                      : " text-gray-400 hover:bg-gray-700"
-                  }`}
-                >
-                   Private
-                </button>
-              </div>
-
               <button
-                onClick={createRoom}
-                disabled={loading}
-                className="w-full py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg shadow-blue-600/20"
+                onClick={() => setIsPrivate(false)}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  !isPrivate
+                    ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
+                    : "bg-gray-700/50 text-gray-400 hover:bg-gray-700"
+                }`}
               >
-                {loading ? "Creating..." : "Create Channel"}
+                🌐 Public
               </button>
+              <button
+                onClick={() => setIsPrivate(true)}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isPrivate
+                    ? "bg-amber-600 text-white shadow-lg shadow-amber-600/20"
+                    : "bg-gray-700/50 text-gray-400 hover:bg-gray-700"
+                }`}
+              >
+                 Private
+              </button>
+            </div>
+
+            <button
+              onClick={createRoom}
+              disabled={loading}
+              className="w-full py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 shadow-lg shadow-blue-600/20"
+            >
+              {loading ? "Creating..." : "Create Channel"}
+            </button>
 
               <p className="text-xs text-gray-600 mt-3 text-center">
                 {isPrivate
