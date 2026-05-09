@@ -16,9 +16,10 @@ const VcLanding = () => {
 
   const token = localStorage.getItem("token");
 
-  // Decode the logged-in user's ID from the JWT
+  // Decode current user ID from JWT
   const getCurrentUserId = () => {
     if (!token) return null;
+
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       return payload.id || payload._id || null;
@@ -29,24 +30,30 @@ const VcLanding = () => {
 
   const currentUserId = getCurrentUserId();
 
-  // Fetch all rooms (public + user's private)
+  // FETCH ROOMS
   const fetchRooms = async () => {
     try {
       setFetching(true);
 
       const [pubRes, privRes] = await Promise.all([
         axios.get(`${BASE_URL}/vc/public`),
+
         token
           ? axios.get(`${BASE_URL}/vc/private`, {
-              headers: { Authorization: `Bearer ${token}` },
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             })
           : axios.get(`${BASE_URL}/vc/private`),
       ]);
 
-      setPublicRooms(pubRes.data);
-      setPrivateRooms(privRes.data);
+      console.log("PUBLIC ROOMS:", pubRes.data);
+      console.log("PRIVATE ROOMS:", privRes.data);
+
+      setPublicRooms(pubRes.data || []);
+      setPrivateRooms(privRes.data || []);
     } catch (err) {
-      console.error("Fetch error:", err.response?.data || err.message);
+      console.error("FETCH ERROR:", err.response?.data || err.message);
     } finally {
       setFetching(false);
     }
@@ -56,7 +63,7 @@ const VcLanding = () => {
     fetchRooms();
   }, []);
 
-  // Create room
+  // CREATE ROOM
   const createRoom = async () => {
     if (!roomName.trim()) {
       alert("Enter a room name");
@@ -64,7 +71,7 @@ const VcLanding = () => {
     }
 
     if (!token) {
-      alert("You must be logged in to create a room");
+      alert("Please login first");
       return;
     }
 
@@ -73,109 +80,204 @@ const VcLanding = () => {
 
       const res = await axios.post(
         `${BASE_URL}/vc/create`,
-        { name: roomName, isPrivate },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          name: roomName,
+          isPrivate,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      // Clear form and refresh list instead of navigating away
+      console.log("ROOM CREATED:", res.data);
+
       setRoomName("");
+
       await fetchRooms();
 
-      // Then navigate to the room
+      // Navigate after refresh
       navigate(`/vc/${res.data._id}`);
     } catch (err) {
-      console.error("Create error:", err.response?.data || err.message);
-      alert("Error creating room");
+      console.error("CREATE ERROR:", err.response?.data || err.message);
+
+      alert(
+        err.response?.data?.message || "Error creating room"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Request Access
+  // REQUEST ACCESS
   const requestAccess = async (id) => {
     if (!token) {
-      alert("Please login to request access");
+      alert("Please login first");
       return;
     }
+
     try {
-      await axios.post(`${BASE_URL}/vc/${id}/request`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(
+        `${BASE_URL}/vc/${id}/request`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       alert("Access request sent!");
+
       fetchRooms();
     } catch (err) {
-      alert(err.response?.data?.message || "Error sending request");
+      console.error("REQUEST ERROR:", err.response?.data || err.message);
+
+      alert(
+        err.response?.data?.message ||
+          "Error sending request"
+      );
     }
   };
 
-  // Delete room
-  const deleteRoom = async (id, roomIsPrivate, roomOwnerId) => {
-    // Private rooms → only owner can delete
+  // DELETE ROOM
+  const deleteRoom = async (
+    id,
+    roomIsPrivate,
+    roomOwnerId
+  ) => {
     if (roomIsPrivate) {
       const ownerId =
-        typeof roomOwnerId === "object" ? roomOwnerId._id : roomOwnerId;
-      if (ownerId?.toString() !== currentUserId?.toString()) {
-        alert("Only the owner can delete a private channel");
+        typeof roomOwnerId === "object"
+          ? roomOwnerId._id
+          : roomOwnerId;
+
+      if (
+        ownerId?.toString() !==
+        currentUserId?.toString()
+      ) {
+        alert(
+          "Only the owner can delete private channels"
+        );
         return;
       }
     }
 
-    if (!confirm("Delete this channel?")) return;
+    const confirmDelete = window.confirm(
+      "Delete this channel?"
+    );
+
+    if (!confirmDelete) return;
 
     try {
       await axios.delete(`${BASE_URL}/vc/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       fetchRooms();
     } catch (err) {
-      console.error("Delete error:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Not allowed or error");
+      console.error("DELETE ERROR:", err.response?.data || err.message);
+
+      alert(
+        err.response?.data?.message ||
+          "Error deleting room"
+      );
     }
   };
 
-  // Get owner display name
+  // GET OWNER NAME
   const getOwnerName = (room) => {
     if (room.owner && typeof room.owner === "object") {
-      return room.owner.name || room.owner.email || "Unknown";
+      return (
+        room.owner.name ||
+        room.owner.email ||
+        "Unknown"
+      );
     }
+
     return "Unknown";
   };
 
-  // Check if user can delete
+  // CAN DELETE CHECK
   const canDelete = (room) => {
     if (!token) return false;
-    // Public rooms → anyone logged-in can delete
+
+    // Public → anyone logged in
     if (!room.isPrivate) return true;
-    // Private rooms → only owner
+
+    // Private → only owner
     const ownerId =
-      typeof room.owner === "object" ? room.owner._id : room.owner;
-    return ownerId?.toString() === currentUserId?.toString();
+      typeof room.owner === "object"
+        ? room.owner._id
+        : room.owner;
+
+    return (
+      ownerId?.toString() ===
+      currentUserId?.toString()
+    );
   };
 
-  // Room card component
+  // ROOM CARD
   const RoomCard = ({ room, color }) => {
     const borderColor =
-      color === "green" ? "border-green-500/30" : "border-amber-500/30";
+      color === "green"
+        ? "border-green-500/30"
+        : "border-amber-500/30";
+
     const hoverBg =
-      color === "green" ? "hover:bg-green-900/20" : "hover:bg-amber-900/20";
+      color === "green"
+        ? "hover:bg-green-900/20"
+        : "hover:bg-amber-900/20";
+
     const badge =
       color === "green"
         ? "bg-green-500/20 text-green-400"
         : "bg-amber-500/20 text-amber-400";
 
+    // OWNER CHECK
+    const ownerId =
+      typeof room.owner === "object"
+        ? room.owner._id
+        : room.owner;
+
+    const isOwner =
+      ownerId?.toString() ===
+      currentUserId?.toString();
+
+    // MEMBER CHECK
+    const isMember = room.members?.some(
+      (id) =>
+        id.toString() ===
+        currentUserId?.toString()
+    );
+
+    // PENDING CHECK
+    const isPending = room.pendingRequests?.some(
+      (id) =>
+        id.toString() ===
+        currentUserId?.toString()
+    );
+
     const showDelete = canDelete(room);
-    const isMember = room.members?.includes(currentUserId);
-    const isPending = room.pendingRequests?.includes(currentUserId);
-    const isOwner = (typeof room.owner === "object" ? room.owner._id : room.owner) === currentUserId;
 
     return (
       <div
         className={`bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border ${borderColor} ${hoverBg} transition-all duration-300 flex justify-between items-center cursor-pointer group`}
         onClick={() => {
-          if (!room.isPrivate || isMember || isOwner) {
+          // PUBLIC ROOM
+          if (!room.isPrivate) {
+            navigate(`/vc/${room._id}`);
+            return;
+          }
+
+          // PRIVATE ROOM
+          if (isMember || isOwner) {
             navigate(`/vc/${room._id}`);
           } else if (isPending) {
-            alert("Request is pending approval");
+            alert("Request pending approval");
           } else {
             requestAccess(room._id);
           }
@@ -187,19 +289,28 @@ const VcLanding = () => {
           >
             {color === "green" ? "🌐" : "🔒"}
           </div>
+
           <div className="min-w-0">
-            <p className="font-medium text-white truncate group-hover:text-blue-300 transition-colors">
+            <p className="font-medium text-white truncate">
               {room.name}
             </p>
+
             <p className="text-xs text-gray-500">
               by {getOwnerName(room)} •{" "}
-              {new Date(room.createdAt).toLocaleDateString()}
+              {new Date(
+                room.createdAt
+              ).toLocaleDateString()}
             </p>
-            {room.isPrivate && !isMember && !isOwner && (
-              <p className="text-[10px] text-amber-500 mt-0.5">
-                {isPending ? "⏳ Pending Approval" : "🔒 Request to Join"}
-              </p>
-            )}
+
+            {room.isPrivate &&
+              !isMember &&
+              !isOwner && (
+                <p className="text-[10px] text-amber-500 mt-0.5">
+                  {isPending
+                    ? "⏳ Pending Approval"
+                    : "🔒 Request to Join"}
+                </p>
+              )}
           </div>
         </div>
 
@@ -207,18 +318,14 @@ const VcLanding = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
+
               deleteRoom(
                 room._id,
                 room.isPrivate,
                 room.owner
               );
             }}
-            className="text-gray-600 hover:text-red-400 transition-colors text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100"
-            title={
-              room.isPrivate
-                ? "Delete (owner only)"
-                : "Delete"
-            }
+            className="text-gray-500 hover:text-red-400 transition-colors text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100"
           >
             🗑️
           </button>
@@ -228,135 +335,142 @@ const VcLanding = () => {
   };
 
   return (
-    <div className="min-h-screen  from-gray-900 via-[#0a0f1e] to-black text-white flex flex-col">
+    <div className="min-h-screen from-gray-900 via-[#0a0f1e] to-black text-white flex flex-col">
       <Navbar />
 
       <div className="flex-1 p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">
+        <h1 className="text-3xl font-bold text-center mb-2">
           Voice Channels
         </h1>
-        <p className="text-gray-500 text-center mb-8 sm:mb-10 text-sm">
-          Create or join a voice/video channel to study together
+
+        <p className="text-gray-500 text-center mb-10 text-sm">
+          Create or join a voice/video channel
         </p>
 
         <div className="max-w-5xl mx-auto grid lg:grid-cols-3 gap-8">
-          {/* PUBLIC CHANNELS */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3 " />
-              <h2 className="text-lg font-semibold ">
+          {/* PUBLIC */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">
                 Public Channels
               </h2>
-              <span className="text-xs text-gray-500 ml-auto">
-                {publicRooms.length} channel{publicRooms.length !== 1 ? "s" : ""}
+
+              <span className="text-xs text-gray-500">
+                {publicRooms.length} channels
               </span>
             </div>
 
             <div className="space-y-3">
               {fetching ? (
-                <p className="text-gray-500 text-sm">Loading...</p>
+                <p className="text-gray-500 text-sm">
+                  Loading...
+                </p>
               ) : publicRooms.length === 0 ? (
                 <div className="bg-gray-800/40 border border-dashed border-gray-700 rounded-xl p-6 text-center">
                   <p className="text-gray-500 text-sm">
                     No public channels yet
                   </p>
-                  <p className="text-gray-600 text-xs mt-1">
-                    Create one to get started →
-                  </p>
                 </div>
               ) : (
                 publicRooms.map((room) => (
-                  <RoomCard key={room._id} room={room} color="green" />
+                  <RoomCard
+                    key={room._id}
+                    room={room}
+                    color="green"
+                  />
                 ))
               )}
             </div>
           </div>
 
-          {/* PRIVATE CHANNELS */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3" />
-              <h2 className="text-xl font-semibold">
+          {/* PRIVATE */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">
                 Private Channels
               </h2>
-              <span className="text-xs text-gray-500 ml-auto">
-                {privateRooms.length} channel{privateRooms.length !== 1 ? "s" : ""}
+
+              <span className="text-xs text-gray-500">
+                {privateRooms.length} channels
               </span>
             </div>
 
             <div className="space-y-3">
               {fetching ? (
-                <p className="text-gray-500 text-sm">Loading...</p>
+                <p className="text-gray-500 text-sm">
+                  Loading...
+                </p>
               ) : privateRooms.length === 0 ? (
                 <div className="bg-gray-800/40 border border-dashed border-gray-700 rounded-xl p-6 text-center">
                   <p className="text-gray-500 text-sm">
                     No private channels yet
                   </p>
-                  <p className="text-gray-600 text-xs mt-1">
-                    Only you & invited members can see these
-                  </p>
                 </div>
               ) : (
                 privateRooms.map((room) => (
-                  <RoomCard key={room._id} room={room} color="amber" />
+                  <RoomCard
+                    key={room._id}
+                    room={room}
+                    color="amber"
+                  />
                 ))
               )}
             </div>
           </div>
 
-          {/* CREATE CHANNEL */}
-          <div className="lg:col-span-1">
+          {/* CREATE */}
+          <div>
             <div className="bg-gray-800/60 backdrop-blur-sm p-6 rounded-2xl border border-white/5 shadow-xl">
-              <h2 className="text-lg font-semibold mb-5 flex items-center gap-2">
-                <span className="text-2xl">Create Channel</span>
+              <h2 className="text-xl font-semibold mb-5">
+                Create Channel
               </h2>
 
               <input
                 type="text"
                 placeholder="Channel name..."
                 value={roomName}
-                onChange={(e) => setRoomName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createRoom()}
-                className="w-full px-4 py-3 rounded-lg bg-gray-900/80 border border-white/10 text-white placeholder-gray-500 mb-4 focus:outline-none focus:border-blue-500 transition-colors"
+                onChange={(e) =>
+                  setRoomName(e.target.value)
+                }
+                onKeyDown={(e) =>
+                  e.key === "Enter" && createRoom()
+                }
+                className="w-full px-4 py-3 rounded-lg bg-gray-900/80 border border-white/10 text-white placeholder-gray-500 mb-4 focus:outline-none focus:border-blue-500"
               />
 
-              {/* Toggle for Public / Private */}
-              <div className="flex items-center gap-3 mb-6">
-              <button
-                onClick={() => setIsPrivate(false)}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                  !isPrivate
-                    ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
-                    : "bg-gray-700/50 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                🌐 Public
-              </button>
-              <button
-                onClick={() => setIsPrivate(true)}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isPrivate
-                    ? "bg-amber-600 text-white shadow-lg shadow-amber-600/20"
-                    : "bg-gray-700/50 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                 Private
-              </button>
-            </div>
+              <div className="flex gap-3 mb-6">
+                <button
+                  onClick={() => setIsPrivate(false)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium ${
+                    !isPrivate
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-700 text-gray-400"
+                  }`}
+                >
+                  🌐 Public
+                </button>
 
-            <button
-              onClick={createRoom}
-              disabled={loading}
-              className="w-full py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 shadow-lg shadow-blue-600/20"
-            >
-              {loading ? "Creating..." : "Create Channel"}
-            </button>
+                <button
+                  onClick={() => setIsPrivate(true)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium ${
+                    isPrivate
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-700 text-gray-400"
+                  }`}
+                >
+                  🔒 Private
+                </button>
+              </div>
 
-              <p className="text-xs text-gray-600 mt-3 text-center">
-                {isPrivate
-                  ? "🔒 Only you can see & delete this channel"
-                  : "🌐 Anyone can see & delete this channel"}
-              </p>
+              <button
+                onClick={createRoom}
+                disabled={loading}
+                className="w-full py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 transition-all"
+              >
+                {loading
+                  ? "Creating..."
+                  : "Create Channel"}
+              </button>
             </div>
           </div>
         </div>
