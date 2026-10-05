@@ -12,11 +12,11 @@ const Explore = () => {
       <div className="max-w-6xl mx-auto mt-10 p-4 flex-1">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          {/* Card 1 : Blogs */}
+          {/* Card 1 : Blogs */}  
           <Link to="/blogs">
             <div className="relative h-[420px] rounded-3xl overflow-hidden group cursor-pointer">
 
-             <img src="/blogs.jpg"  
+             <img src="/blogs.png"  
                 alt="Blogs"
                 className="absolute inset-0 w-full h-full object-cover opacity-25 transition duration-500 group-hover:opacity-15"
               />
@@ -41,7 +41,7 @@ const Explore = () => {
          <div className="relative h-[420px] rounded-3xl overflow-hidden group cursor-pointer">
 
   {/* Background Image */}
-  <img src="/chat.jpg"
+  <img src="/vc.png"
     alt="Chats"
     className="absolute inset-0 w-full h-full object-cover opacity-25 transition duration-500 group-hover:opacity-15"
   />
@@ -69,7 +69,7 @@ const Explore = () => {
         <div className="relative h-[420px] rounded-3xl overflow-hidden group cursor-pointer">
 
   {/* Background Image */}
-  <img src="/connect.jpg"
+  <img src="/connect.png"
     alt="Connect"
     className="absolute inset-0 w-full h-full object-cover opacity-25 transition duration-500 group-hover:opacity-15"
   />

@@ -3,7 +3,6 @@ import axios from "axios";
 import BASE_URL from "../config";
 
 const BlogCard = ({ blog }) => {
-
   const userId = localStorage.getItem("userId");
 
   const handleDelete = async () => {
@@ -29,12 +28,12 @@ const BlogCard = ({ blog }) => {
   };
 
   return (
-    <div className="bg-white/5 backdrop-blur-lg border border-white/10 
-                    p-4 sm:p-6 
-                    rounded-2xl 
-                    w-full 
-                    max-w-md 
-                    mx-auto 
+    <div className="bg-white/5 border border-white/10
+                    p-4 sm:p-6
+                    rounded-3xl
+                    w-full
+                    max-w-md
+                    mx-auto
                     shadow-lg">
 
       <h2 className="text-lg sm:text-xl font-bold text-white mb-3">
@@ -52,11 +51,11 @@ const BlogCard = ({ blog }) => {
       {blog.user?.toString() === userId && (
         <button
           onClick={handleDelete}
-          className="w-full sm:w-auto 
-                     bg-red-600 hover:bg-red-700 
-                     text-white 
-                     px-4 py-2 
-                     rounded-lg 
+          className="w-full sm:w-auto
+                     bg-red-600 hover:bg-red-700
+                     text-white
+                     px-4 py-2
+                     rounded-lg
                      transition duration-200">
           Delete
         </button>

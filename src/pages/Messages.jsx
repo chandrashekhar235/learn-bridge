@@ -1,15 +1,10 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
+import React from "react";
+import ChatHub from "../components/ChatHub";
 
-const Messages = () => {
+export default function Messages() {
   return (
-    <div>
-       <Navbar />
-       <div className="min-h-screen color-black ">
-        
-       </div>
+    <div className="flex flex-col h-screen">
+      <ChatHub />
     </div>
-  )
+  );
 }
-
-export default Messages

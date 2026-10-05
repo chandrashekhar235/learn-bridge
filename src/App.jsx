@@ -15,6 +15,7 @@ import CreateProfile from "./pages/CreateProfile";
 import VcLanding from "./pages/VcLanding.jsx";
 import StudyRoom from "./pages/Vc";
 import Connect from "./pages/Connect";
+import Messages from "./pages/Messages";
 import About from "./pages/About";
 import CreateBlog from "./pages/CreateBlog";
 import Blogs from "./pages/Blogs";
@@ -24,51 +25,135 @@ import Rooms from "./pages/Rooms.jsx";
 
 function AppRoutes() {
   const location = useLocation();
-  const background = location.state && location.state.background;
-  const isAuthenticated = !!localStorage.getItem("token");
+
+  const background =
+    location.state &&
+    location.state.background;
+
+  const isAuthenticated =
+    !!localStorage.getItem("token");
 
   return (
     <>
-      <Routes location={background || location}>
-        <Route path="/" element={<Home />} />
+      <Routes
+        location={
+          background || location
+        }
+      >
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
         <Route
           path="/explore"
           element={
-            isAuthenticated ? <Explore /> : <Navigate to="/login" replace />
+            isAuthenticated ? (
+              <Explore />
+            ) : (
+              <Navigate
+                to="/login"
+                replace
+              />
+            )
           }
         />
 
         <Route
           path="/profile"
           element={
-            isAuthenticated ? <Profile /> : <Navigate to="/login" replace />
+            isAuthenticated ? (
+              <Profile />
+            ) : (
+              <Navigate
+                to="/login"
+                replace
+              />
+            )
           }
         />
 
         <Route
           path="/create-profile"
           element={
-            isAuthenticated ? <CreateProfile /> : <Navigate to="/login" replace />
+            isAuthenticated ? (
+              <CreateProfile />
+            ) : (
+              <Navigate
+                to="/login"
+                replace
+              />
+            )
           }
         />
 
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/blogs" element={<Blogs />} />
-        <Route path="/create-blog" element={<CreateBlog />} />
-        <Route path="/vc" element={<VcLanding />} />
-<Route path="/vc/:roomId" element={<StudyRoom />} />
-        <Route path="/connect" element={<Connect />} />
-        <Route path="/rooms" element={<Rooms />} />
-         <Route path="/about" element={<About />} />
-         <Route path="/groups/:id/admin" element={<GroupAdmin />} />
+        <Route
+          path="/signup"
+          element={<Signup />}
+        />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/blogs"
+          element={<Blogs />}
+        />
+
+        <Route
+          path="/create-blog"
+          element={<CreateBlog />}
+        />
+
+        <Route
+          path="/vc"
+          element={<VcLanding />}
+        />
+
+        <Route
+          path="/vc/:roomId"
+          element={<StudyRoom />}
+        />
+
+        <Route
+          path="/connect"
+          element={<Connect />}
+        />
+
+        <Route
+          path="/messages"
+          element={<Messages />}
+        />
+
+        <Route
+          path="/rooms"
+          element={<Rooms />}
+        />
+
+        <Route
+          path="/about"
+          element={<About />}
+        />
+
+        <Route
+          path="/groups/:id/admin"
+          element={<GroupAdmin />}
+        />
       </Routes>
 
       {background && (
         <Routes>
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/signup"
+            element={<Signup />}
+          />
+
+          <Route
+            path="/login"
+            element={<Login />}
+          />
         </Routes>
       )}
     </>

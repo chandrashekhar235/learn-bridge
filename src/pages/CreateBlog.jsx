@@ -13,6 +13,9 @@ const CreateBlog = () => {
     description: "",
   });
 
+  const [loadingAI, setLoadingAI] = useState(false);
+
+  // HANDLE INPUT CHANGE
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -20,6 +23,7 @@ const CreateBlog = () => {
     });
   };
 
+  // PUBLISH BLOG
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,15 +41,50 @@ const CreateBlog = () => {
         },
       });
 
+      alert("Blog published successfully!");
+
       navigate("/blogs");
+
     } catch (error) {
       console.log("ERROR:", error.response?.data || error.message);
+
       alert("Error publishing blog");
     }
   };
 
+  // AI GENERATE BLOG
+  const generateWithAI = async () => {
+    if (!formData.title.trim()) {
+      alert("Enter blog title first");
+      return;
+    }
+
+    try {
+      setLoadingAI(true);
+
+      const res = await axios.post(
+        `${BASE_URL}/ai/generate-blog`,
+        {
+          topic: formData.title,
+        }
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        description: res.data.content,
+      }));
+
+    } catch (err) {
+      console.log(err);
+
+      alert("AI generation failed");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#050b1e] via-[#0a1230] to-[#0b1b3f] text-white flex flex-col">
+    <div className="min-h-screen text-white flex flex-col">
 
       <Navbar />
 
@@ -59,6 +98,8 @@ const CreateBlog = () => {
           onSubmit={handleSubmit}
           className="space-y-6 bg-white/5 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/10 shadow-lg"
         >
+
+          {/* TITLE */}
           <input
             type="text"
             name="title"
@@ -69,22 +110,43 @@ const CreateBlog = () => {
             className="w-full p-3 rounded-lg bg-transparent border border-white/20 text-white text-lg sm:text-xl focus:outline-none focus:border-blue-500"
           />
 
+          {/* DESCRIPTION */}
           <textarea
             name="description"
             placeholder="Write your blog..."
             value={formData.description}
             onChange={handleChange}
             required
-            rows="8"
+            rows="10"
             className="w-full p-4 rounded-lg bg-transparent border border-white/20 text-white focus:outline-none focus:border-blue-500"
           />
 
+          {/* AI BUTTON */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={generateWithAI}
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-white text-sm transition-all"
+            >
+              {loadingAI
+                ? "Generating..."
+                : "✨ Generate With AI"}
+            </button>
+          </div>
+
+          {/* HELPER TEXT */}
+          <p className="text-xs text-gray-400 text-right">
+            AI generates a draft based on your title. You can edit it before publishing.
+          </p>
+
+          {/* SUBMIT */}
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 transition duration-200 py-3 rounded-lg font-semibold"
           >
             Publish
           </button>
+
         </form>
       </div>
 
