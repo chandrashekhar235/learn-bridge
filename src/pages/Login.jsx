@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../config";
-
+import GoogleAuthButton from "../components/GoogleAuthButton";
 function Login() {
   const navigate = useNavigate();
 
@@ -63,19 +63,18 @@ function Login() {
       // SAVE USER
       // =========================
 
-      if (data.user) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
-
-        if (data.user._id) {
-          localStorage.setItem(
-            "userId",
-            data.user._id
-          );
-        }
-      }
+     if (data.user?.id) {
+  localStorage.setItem(
+    "userId",
+    data.user.id
+  );
+}
+if (data.user) {
+  localStorage.setItem(
+    "user",
+    JSON.stringify(data.user)
+  );
+}
 
       // =========================
       // TELL SOCKET PROVIDER
@@ -187,6 +186,23 @@ function Login() {
               ? "Logging in..."
               : "Login"}
           </button>
+          <button
+  type="submit"
+  disabled={loading}
+  className="w-full bg-blue-600 py-2 rounded disabled:opacity-50"
+>
+  {loading ? "Logging in..." : "Login"}
+</button>
+
+<div className="flex items-center gap-3 my-5">
+  <div className="flex-1 h-px bg-white/10" />
+  <span className="text-gray-400 text-sm">
+    OR
+  </span>
+  <div className="flex-1 h-px bg-white/10" />
+</div>
+
+<GoogleAuthButton />
         </form>
       </div>
     </div>

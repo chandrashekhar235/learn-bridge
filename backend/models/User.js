@@ -14,7 +14,13 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
+    required: false,
+    default: "",
+  },
+  googleId: {
+    type: String,
     required: true,
+    sparse: true,
   },
 
   avatar: {
@@ -31,6 +37,10 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-});
+},
+  {
+    timestamps: true,
+  }
+);
 
 module.exports = mongoose.model("User", userSchema);

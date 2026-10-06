@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../config";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 function Signup() {
   const navigate = useNavigate();
@@ -105,6 +106,17 @@ function Signup() {
           >
             {loading ? "Creating account..." : "Sign Up"}
           </button>
+          <div className="flex items-center gap-3 my-5">
+  <div className="flex-1 h-px bg-white/10" />
+
+  <span className="text-gray-400 text-sm">
+    OR
+  </span>
+
+  <div className="flex-1 h-px bg-white/10" />
+</div>
+
+<GoogleAuthButton />
         </form>
       </div>
     </div>

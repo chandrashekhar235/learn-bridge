@@ -470,7 +470,7 @@ io.on("connection", (socket) => {
         const senderSocketId = onlineUsers.get(
           String(
             fromUserId ||
-              toUserId
+            toUserId
           )
         );
 
