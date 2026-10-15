@@ -218,9 +218,9 @@ setPrivateRooms(
 
     // Private → only owner
     const ownerId =
-      typeof room.owner === "object"
-        ? room.owner._id
-        : room.owner;
+  room?.owner && typeof room.owner === "object"
+    ? room.owner._id
+    : room?.owner ?? null;
 
     return (
       ownerId?.toString() ===
@@ -247,9 +247,9 @@ setPrivateRooms(
 
     // OWNER CHECK
     const ownerId =
-      typeof room.owner === "object"
-        ? room.owner._id
-        : room.owner;
+  room?.owner && typeof room.owner === "object"
+    ? room.owner._id
+    : room?.owner ?? null;
 
     const isOwner =
       ownerId?.toString() ===
