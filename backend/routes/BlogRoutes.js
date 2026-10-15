@@ -28,7 +28,7 @@ router.post("/blogs", protect, async (req, res) => {
 
     res.status(201).json(newBlog);
   } catch (error) {
-    console.log("BLOG ERROR:", error);  // 🔍 Debug line
+   // console.log("BLOG ERROR:", error);  // 🔍 Debug line
     res.status(500).json({ message: error.message });
   }
 });

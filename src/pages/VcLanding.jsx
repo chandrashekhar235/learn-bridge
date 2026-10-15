@@ -50,8 +50,16 @@ const VcLanding = () => {
       console.log("PUBLIC ROOMS:", pubRes.data);
       console.log("PRIVATE ROOMS:", privRes.data);
 
-      setPublicRooms(pubRes.data || []);
-      setPrivateRooms(privRes.data || []);
+const publicData = Array.isArray(pubRes.data) ? pubRes.data : [];
+const privateData = Array.isArray(privRes.data) ? privRes.data : [];
+
+setPublicRooms(
+  publicData.filter((room) => room && room._id)
+);
+
+setPrivateRooms(
+  privateData.filter((room) => room && room._id)
+);
     } catch (err) {
       console.error("FETCH ERROR:", err.response?.data || err.message);
     } finally {
